@@ -1,0 +1,18 @@
+# Normalize every text file to LF inside the repository.
+#
+# Without an explicit eol=lf, a Windows checkout with core.autocrlf=true keeps
+# rewriting text files to CRLF and git warns "LF will be replaced by CRLF" on
+# every single commit (observed on this repository on 2026-10-11).
+* text=auto eol=lf
+
+# Binary assets: never convert and never diff them.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.exe binary
+
+# Generated but intentionally tracked (bin crate convention): keep it text.
+Cargo.lock text

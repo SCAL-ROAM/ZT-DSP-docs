@@ -1,0 +1,42 @@
+name: Documentation defect
+description: The Master Guide or one of its appendices is wrong or inconsistent
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For a security vulnerability use the private route in SECURITY.md instead.
+        Do not paste keys, PSKs or private paths.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind of defect
+      options:
+        - Text contradicts the implementation
+        - Chinese and English mirror disagree
+        - Internal contradiction within one document
+        - Wrong or stale number, path or version
+        - Formatting, structure or rendering
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: location
+    attributes:
+      label: Location
+      description: File path and section or line, for example en/spec/ZT-DSP_1.0.0_Master_Guide.md section 4.2.4
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What it says now, and what it should say
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Quote the lines, and if the implementation disagrees, cite the file and line
+    validations:
+      required: true

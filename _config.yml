@@ -1,0 +1,12 @@
+# Jekyll configuration for GitHub Pages.
+# After hosting, set "url" to the site root and, for a project site, "baseurl" to /ZT-DSP-docs.
+title: ZT-DSP Protocol Suite -- Documentation
+description: Protocol specification (docs 1.0.0).
+url: ""
+baseurl: ""
+markdown: kramdown
+
+# Keep repository plumbing out of the published site.
+exclude:
+  - .github/
+  - SECURITY.md

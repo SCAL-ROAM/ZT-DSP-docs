@@ -1,0 +1,48 @@
+# ZT-DSP .gitignore
+# Purpose: keep local build artifacts, editor caches and local agent runtime
+# data out of the public repository.
+
+# -- Python --
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+.venv/
+venv/
+
+# -- Rust --
+target/
+
+# -- Editors / IDEs --
+.vs/
+.vscode/
+.idea/
+
+# -- Keys and credentials --
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+.env
+.env.*
+
+# -- Operating systems --
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# -- Local agent runtime and scratch data (must never be published) --
+.reasonix/
+.zcode/
+.claude/
+.gemini/
+memory/
+_scratch/
+github-mcp-server_Windows_x86_64/
+AGENTS.md

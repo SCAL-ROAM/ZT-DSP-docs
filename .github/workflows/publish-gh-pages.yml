@@ -1,0 +1,49 @@
+# Publish the documentation set to GitHub Pages through a dedicated gh-pages branch.
+#
+# The gh-pages branch is DERIVED: never edit it by hand. This workflow rebuilds it from main
+# on every push, so the branch cannot drift away from the source. Markdown is rendered by
+# GitHub Pages' own Jekyll step, which is why no build tool is pinned here.
+#
+# One-time setup after the first push:
+#   Settings -> Pages -> Source = "Deploy from a branch" -> gh-pages / (root)
+name: Publish Pages branch
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages-branch
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Rebuild the gh-pages branch from main
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
+
+      - name: Stage the site
+        run: |
+          set -euo pipefail
+          mkdir -p _stage
+          git archive HEAD | tar -x -C _stage
+          # Repository plumbing is not part of the site.
+          rm -rf _stage/.github _stage/scripts _stage/SECURITY.md
+          git -C _stage init -q -b gh-pages
+
+      - name: Publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          cd _stage
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Publish documentation from ${{ github.sha }}"
+          git push --force "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git" gh-pages
