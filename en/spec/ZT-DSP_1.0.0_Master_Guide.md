@@ -10,7 +10,7 @@
 - **Content classification**: The main body of this specification is an implementation specification; sections marked [Theory] [Experimental] are ideas and do not mean they have been implemented or verified.
 - **Maintaining team**: Protocol Founding Team
 
-> 📌 **What this document is and what it governs** (two-way declaration · document side):
+> **What this document is and what it governs** (two-way declaration · document side):
 >
 > - **This document**: the *ZT-DSP Protocol Master Guide*.
 > - **Applies to**: This file specifies the protocol behavior and tunable parameters on the code side — `random_len`, `random_rate`, `window`, `time_window`, `key_len`, `hash`, `aead`, `module_flags`, `padding`, `jitter`, etc.; adjusting these settings is governed by this document.
@@ -19,7 +19,7 @@
 
 ---
 
-## 📖 Beginner's Guide (Please Read This First)
+## Beginner's Guide (Please Read This First)
 
 ### What is this file for?
 
@@ -47,11 +47,11 @@ Imagine a scenario: you want to send a letter to a friend, but the postal worker
 | Want to develop an implementation | Volume 4 + Appendix F (Byte-by-Byte On-Wire Specification) + Appendix H (State Machine and Timeout Matrix) + Appendix C (Minimal Implementation Checklist) + Appendix E (Official Client Guide: Python and Rust) |
 | Want to get it up and running right away | Appendix E (installation, commands, and troubleshooting for the official Python and Rust clients `zt_dsp_py` / `zt-dsp-rs`) |
 
-> 📌 **Note on volume numbering**: volume numbers are fixed — each number maps to one volume of the body text, and numbers not listed have no corresponding volume.
+> **Note on volume numbering**: volume numbers are fixed — each number maps to one volume of the body text, and numbers not listed have no corresponding volume.
 
-> 💡 **Reading tip**: When you hit a term you do not understand, first jump to Appendix A for the full annotation, then come back and keep reading. Every term has a [Terminology Note] pointer and a one-sentence explanation the first time it appears in the main text.
+> **Reading tip**: When you hit a term you do not understand, first jump to Appendix A for the full annotation, then come back and keep reading. Every term has a [Terminology Note] pointer and a one-sentence explanation the first time it appears in the main text.
 >
-> 💡 **Note for new readers**: Appendix E gives the start-up and troubleshooting path for the official clients (Python and Rust); appendices F/G/H are at the "protocol engineering blueprint" level — when writing an implementation, take Appendix F/H as authoritative (every sentence of them has been checked line by line against the official implementations), while Volume 4 is better suited to understanding and remembering; Appendix A.3 collects engineering and audit terminology; for byte-level self-checks, compare against Appendix F.
+> **Note for new readers**: Appendix E gives the start-up and troubleshooting path for the official clients (Python and Rust); appendices F/G/H are at the "protocol engineering blueprint" level — when writing an implementation, take Appendix F/H as authoritative (every sentence of them has been checked line by line against the official implementations), while Volume 4 is better suited to understanding and remembering; Appendix A.3 collects engineering and audit terminology; for byte-level self-checks, compare against Appendix F.
 
 ### Terminology Annotation Rules (learn these rules first, and reading will be much easier)
 
@@ -65,8 +65,8 @@ term (full name / original English wording)
 ```
 
 - **In the main text**, when a term first appears: the name + full name + a one-sentence explanation are given, with a note "see Appendix A for the full annotation"
-- **Appendix A**: complete tree annotations for all terms (Meaning / Principle / Motivation / Analogy / ⚠️ Common Misconceptions)
-- Complex concepts are supplemented with **everyday analogies**; easily misunderstood concepts are flagged **⚠️ Common Misconceptions**
+- **Appendix A**: complete tree annotations for all terms (Meaning / Principle / Motivation / Analogy / Common Misconceptions)
+- Complex concepts are supplemented with **everyday analogies**; easily misunderstood concepts are flagged **Common Misconceptions**
 - Content involving network communication, user data, or identity verification carries dedicated [Privacy Risk] [Protection Advice] [Compliance Note] annotations
 
 ---
@@ -142,7 +142,7 @@ zero trust (Zero Trust)
 
 In traditional network communication, we usually assume that certain links are trustworthy. For example, we assume that the chat software's server will not peek at chat records, and that the telecom operator will not tamper with SMS contents. But the design principle of ZT-DSP is: **assume that no one is trustworthy**.
 
-> 🏠 **Everyday analogy**: Imagine a scenario: traditional security is like a residential compound gate — once you are through the main gate you are by default "one of us". Zero trust is like airport security — even after you have passed the first check, you are checked again before the boarding gate, and no link can "skip inspection by face recognition".
+> **Everyday analogy**: Imagine a scenario: traditional security is like a residential compound gate — once you are through the main gate you are by default "one of us". Zero trust is like airport security — even after you have passed the first check, you are checked again before the boarding gate, and no link can "skip inspection by face recognition".
 > (The above is a scenario, not a technical description.)
 
 "Zero trust" means:
@@ -152,16 +152,16 @@ In traditional network communication, we usually assume that certain links are t
 - It does not assume the certification authority is permanently reliable — the TCA may be breached, coerced, or shut down
 - It assumes only that mathematics is reliable — relying on cryptographic mathematical principles, not human morality
 
-> ⚠️ **Common misconception**: Zero trust ≠ "trusting no one at all, unable to collaborate". Zero trust is not a refusal to trust, but **replacing verbal promises with verifiable credentials** — it merely changes the source of trust from "identity/location" to "mathematical evidence".
+> **Common misconception**: Zero trust ≠ "trusting no one at all, unable to collaborate". Zero trust is not a refusal to trust, but **replacing verbal promises with verifiable credentials** — it merely changes the source of trust from "identity/location" to "mathematical evidence".
 
 ## 1.2 What is "dynamic synchronization"?
 
 "Dynamic" means the protocol's state is not static. Every round of communication updates the keys, and every session generates a new encryption context. "Synchronization" means the two communicating parties reach a state of agreement by mathematical means — both sides independently compute the same key, without any third party taking part.
 
-> 🏠 **Everyday analogy**: Imagine a scenario: dynamic synchronization is like "setting your watches" — two people each look at their own watch, but a shared set of rules (say, both listening to the same hourly chime) keeps their time consistent. In ZT-DSP, both sides each hold the same material (PSK, DH result, session salt) and independently compute exactly the same key with the same set of formulas — no third party is needed to "agree on it for them".
+> **Everyday analogy**: Imagine a scenario: dynamic synchronization is like "setting your watches" — two people each look at their own watch, but a shared set of rules (say, both listening to the same hourly chime) keeps their time consistent. In ZT-DSP, both sides each hold the same material (PSK, DH result, session salt) and independently compute exactly the same key with the same set of formulas — no third party is needed to "agree on it for them".
 > (The above is a scenario, not a technical description.)
 >
-> 🔑 **Key term preview**: the "key" (Key) mentioned in this paragraph has a complete annotation in Appendix A. In plain terms: a key is the key to a "digital lock"; a message encrypted with it can only be unlocked by someone holding the same key.
+> **Key term preview**: the "key" (Key) mentioned in this paragraph has a complete annotation in Appendix A. In plain terms: a key is the key to a "digital lock"; a message encrypted with it can only be unlocked by someone holding the same key.
 
 ## 1.3 The Four Core Principles
 
@@ -169,9 +169,9 @@ In traditional network communication, we usually assume that certain links are t
 
 All ZT-DSP specifications are public. Anyone may read, modify, and implement their own version. There is no *mandatory* official client, no forced update, no centralized control. This openness is both the protocol's advantage and the source of its security — an attacker cannot control the whole network by breaking a single official client.
 
-> 🔗 **Related knowledge**: This resembles the idea of Open Source software — public code does not mean insecure; "security rests on public review" (Kerckhoffs's principle: even if an attacker knows the entire design of the system, the system remains secure as long as the key is kept secret). Kerckhoffs's principle has a complete annotation in Appendix A.
+> **Related knowledge**: This resembles the idea of Open Source software — public code does not mean insecure; "security rests on public review" (Kerckhoffs's principle: even if an attacker knows the entire design of the system, the system remains secure as long as the key is kept secret). Kerckhoffs's principle has a complete annotation in Appendix A.
 
-> ⚠️ **Common misconception**: Many people think "public protocol = vulnerabilities seen by attackers = insecure". The opposite is true: a public protocol is reviewed by countless people, so vulnerabilities are found and fixed faster; a secret protocol (Security by Obscurity, achieving security by concealment) is, on the contrary, often proved riddled with holes once it is made public.
+> **Common misconception**: Many people think "public protocol = vulnerabilities seen by attackers = insecure". The opposite is true: a public protocol is reviewed by countless people, so vulnerabilities are found and fixed faster; a secret protocol (Security by Obscurity, achieving security by concealment) is, on the contrary, often proved riddled with holes once it is made public.
 
 ### Principle Two: Parameter autonomy, silent drop
 
@@ -184,7 +184,7 @@ silent drop (Silent Drop)
 └── Rationale: traditional protocols (such as HTTP) return error codes like 400/404, which are convenient for debugging but also for probing. Anonymous network protocols need to "stay invisible", hence the silent drop was born
 ```
 
-> 🏠 **Everyday analogy**: Imagine a scenario: silent drop is like a "secret room with no signboard" — no one answers a knock, no one replies to a shout, so a passer-by cannot tell whether anyone is inside or what model of lock is on the door.
+> **Everyday analogy**: Imagine a scenario: silent drop is like a "secret room with no signboard" — no one answers a knock, no one replies to a shout, so a passer-by cannot tell whether anyone is inside or what model of lock is on the door.
 > (The above is a scenario, not a technical description.)
 
 ### Principle Three: Out-of-band exchange, door number first
@@ -198,7 +198,7 @@ out-of-band exchange (Out-of-Band Exchange)
 └── Rationale: any encrypted communication needs an "initial trust" — the two sides must first confirm "the other party really is that person". Out-of-band exchange provides this initial trust and depends on no centralized authority
 ```
 
-> ⚠️ **Common misconception**: Out-of-band exchange ≠ having to meet offline. QR code scanning, encrypted email, or another chat tool whose trust you have already established all count as out of band. The core criterion is: **this channel does not pass through a ZT-DSP server, and you have already confirmed that it is trustworthy**.
+> **Common misconception**: Out-of-band exchange ≠ having to meet offline. QR code scanning, encrypted email, or another chat tool whose trust you have already established all count as out of band. The core criterion is: **this channel does not pass through a ZT-DSP server, and you have already confirmed that it is trustworthy**.
 
 ### Principle Four: Layered isolation, least privilege
 
@@ -211,7 +211,7 @@ principle of least privilege (Principle of Least Privilege)
 └── Rationale: a long-standing lesson in security — a large number of data-leak incidents stem from "some employee account having excessive privilege". Least privilege is the first principle of secure design
 ```
 
-> 🔗 **Related knowledge**: The principle of least privilege is also widely applied in operating systems (e.g. running services as a non-root user on Linux), databases (read-only accounts), and cloud services (RAM roles). Once you have learned this principle, you can apply it in any technical field.
+> **Related knowledge**: The principle of least privilege is also widely applied in operating systems (e.g. running services as a non-root user on Linux), databases (read-only accounts), and cloud services (RAM roles). Once you have learned this principle, you can apply it in any technical field.
 
 ---
 
@@ -227,7 +227,7 @@ principle of least privilege (Principle of Least Privilege)
 
 Cryptographic protocols are often full of abstract concepts — hashing, key derivation, forward secrecy, man-in-the-middle attacks. To a beginner, imagine a scenario: these terms are like a wall. The hotel model turns this wall into a window: through scenarios familiar from everyday life, you understand the protocol's security boundary. (The above is a scenario, not a technical description.)
 
-> ⚠️ **Important reminder**: **The hotel model is a teaching tool, not a technical specification.** When you need a precise implementation, return to the mathematical description in Volume 4. The metaphors in the model (such as "box") correspond technically to specific encryption algorithms (AES-256-GCM); do not mix them up.
+> **Important reminder**: **The hotel model is a teaching tool, not a technical specification.** When you need a precise implementation, return to the mathematical description in Volume 4. The metaphors in the model (such as "box") correspond technically to specific encryption algorithms (AES-256-GCM); do not mix them up.
 
 ## 3.2 Scenario setup
 
@@ -239,7 +239,7 @@ Imagine a scenario: a special hotel —
 - The rooms have no keyholes, and the front desk cannot enter (end-to-end encryption)
 - Before guests enter a room, they must already know each other's room number (out-of-band exchange)
 
-> 🏠 **Everyday analogy, upgraded**: Imagine a scenario: this hotel is more like a hybrid of "parcel transit station + star-rated hotel" — the front desk is responsible for moving parcels from room A to room B, but the front desk has neither a key to open them nor any record of the parcels' contents.
+> **Everyday analogy, upgraded**: Imagine a scenario: this hotel is more like a hybrid of "parcel transit station + star-rated hotel" — the front desk is responsible for moving parcels from room A to room B, but the front desk has neither a key to open them nor any record of the parcels' contents.
 > (The above is a scenario, not a technical description.)
 
 ## 3.3 Role mapping
@@ -264,13 +264,13 @@ When you go to a hotel to find a friend, you do not ask at the front desk "which
 
 **If you do not bring the door number, the hotel front desk will not tell you anyone's room number. This is not a bug; it is the bottom line of anonymity.**
 
-> 💡 **Practical tip**: The door number (token hash) is **public information** and can be safely told to friends; but the "token itself" (identity card) behind the door number is **top-secret information** and must never be given to anyone. Imagine a scenario: you can print your phone number on a business card, but you must never hand the original of your ID card to anyone. (The above is a scenario, not a technical description.)
+> **Practical tip**: The door number (token hash) is **public information** and can be safely told to friends; but the "token itself" (identity card) behind the door number is **top-secret information** and must never be given to anyone. Imagine a scenario: you can print your phone number on a business card, but you must never hand the original of your ID card to anyone. (The above is a scenario, not a technical description.)
 
 ### Rule Two: The front desk cannot open any box
 
 After guests A and B enter a room, they begin exchanging boxes. Every box is locked, and only A and B hold the key. The front desk is responsible for moving the boxes from A's room to B's room, but the front desk has no key and cannot open the boxes to see the contents. Even if the front desk is malicious, at most it can do two things: refuse to move them (cut the connection) or delay moving them (slow down), but it can never know what is inside the box.
 
-> 🔗 **Related knowledge**: This is "end-to-end encryption" — encryption and decryption happen only at the two ends of the communication, and the intermediate link (the server) only ever sees ciphertext. Instant messaging software such as WeChat and Signal advertises "end-to-end encryption" on the same principle.
+> **Related knowledge**: This is "end-to-end encryption" — encryption and decryption happen only at the two ends of the communication, and the intermediate link (the server) only ever sees ciphertext. Instant messaging software such as WeChat and Signal advertises "end-to-end encryption" on the same principle.
 
 ### Rule Three: The security guard does not enter the room
 
@@ -283,16 +283,16 @@ digital signature (Digital Signature)
 └── Rationale: handwritten signatures in the real world can be imitated; digital signatures are guaranteed unforgeable by mathematics, and are the cornerstone of electronic identity authentication
 ```
 
-> 💡 **Practical tip**: When the security guard verifies an identity card, it uses a "verification algorithm" (public key verification) and does not need to see the entire contents of the identity card — imagine a scenario: a security inspector only needs to verify whether the passport chip is genuine, and does not need to know all your entry and exit records in the passport. This is why the TCA can hold none of your communication data. (The above is a scenario, not a technical description.)
+> **Practical tip**: When the security guard verifies an identity card, it uses a "verification algorithm" (public key verification) and does not need to see the entire contents of the identity card — imagine a scenario: a security inspector only needs to verify whether the passport chip is genuine, and does not need to know all your entry and exit records in the passport. This is why the TCA can hold none of your communication data. (The above is a scenario, not a technical description.)
 
 ### Rule Four: Guests in the lobby cannot see each other
 
 When A arrives at the hotel and shows the room number to find B, B has not arrived yet. A is placed in the lobby (the waiting pool) to wait. **Key security property: none of the guests in the lobby know of each other's existence.** A does not know that C, D, and E are in the lobby too; C, D, and E do not know whom A is waiting for. The front desk does not broadcast "A is waiting for B"; it merely quietly keeps this record.
 
-> 🏠 **Everyday Analogy**: Imagine this scenario: this is like an "anonymous reception room" -- all the waiters are in the same room, but each is separated by a partition, nobody can see anyone else, and only the front desk knows where each person is.
+> **Everyday Analogy**: Imagine this scenario: this is like an "anonymous reception room" -- all the waiters are in the same room, but each is separated by a partition, nobody can see anyone else, and only the front desk knows where each person is.
 > (The above is an imagined scenario, not a technical description)
 
-> 🔗 **Related Knowledge**: This corresponds to "Unobservability" in cryptography -- not only is the content kept secret, but even metadata such as "who is communicating with whom" is not exposed. Note: metadata (who, when, how often) often exposes privacy more than the content itself, which is also why section 4.2.4 hashes the encrypted token.
+> **Related Knowledge**: This corresponds to "Unobservability" in cryptography -- not only is the content kept secret, but even metadata such as "who is communicating with whom" is not exposed. Note: metadata (who, when, how often) often exposes privacy more than the content itself, which is also why section 4.2.4 hashes the encrypted token.
 
 ### Rule Five: Once a Room Is Paired, Outsiders Cannot Break In
 
@@ -305,7 +305,7 @@ Hash (Hash, Hash Function)
 └── Rationale: scenarios that need a "fingerprint" -- verifying data integrity, storing passwords (storing only the hash, not the plaintext), generating public identifiers (room numbers)
 ```
 
-> ⚠️ **Common Misconception**: Hash ≠ encryption. Encryption is reversible (with the key you can restore the plaintext); hashing is irreversible (you can only verify, not restore). Storing only the hash of a password, or using a hash as encryption, are mistakes beginners commonly make.
+> **Common Misconception**: Hash ≠ encryption. Encryption is reversible (with the key you can restore the plaintext); hashing is irreversible (you can only verify, not restore). Storing only the hash of a password, or using a hash as encryption, are mistakes beginners commonly make.
 
 ---
 
@@ -321,9 +321,11 @@ Hash (Hash, Hash Function)
 
 ## 4.1 Identity and Credential System
 
+> **Version support statement (TPM and HWID)** The storage, binding and writing of the TPM (Trusted Platform Module) and HWID (Hardware Identifier) described in this section is a **design goal at the protocol level**, and the **current 1.0.0 release does not implement it**. The official clients `zt_dsp_py` and `zt_dsp_rs` **do not support writing, reading or modifying the TPM or the HWID in any way**; the PSK and the token are currently supplied as ordinary configuration values (`--psk-file` / `--psk-env` / `--psk`), and keeping them secret is the caller's responsibility -- the client provides no hardware-level protection. This capability is **planned for a later version**; only then will the "storage location / physical binding / non-exportable" statements in this section correspond to running code. See the **version support matrix in Appendix D** for the per-version TPM/HWID status; wherever TPM/HWID appears in this section, this statement governs.
+
 In ZT-DSP, your identity consists of two parts:
 
-1. **Token** -- your "identity card", issued by a TCA and stored in the device's TPM/HWID
+1. **Token** -- your "identity card", issued by a TCA and, by protocol design, stored in the device's TPM/HWID (**not implemented in 1.0.0 -- see the version support statement at the head of this section**)
 2. **Token Hash (H(Token))** -- your "room number", used to find the other party on the server
 
 ```plain
@@ -335,12 +337,12 @@ Token
 
 **Key distinction: the identity card is secret, while the room number is public.** You never show your identity card to others, but you can tell your room number to friends so that they can find you in the hotel.
 
-> 🏠 **Everyday Analogy**: Imagine this scenario: the token is like the original identity card (containing chip information, never lent out); the token hash is like the identity card number (which can be printed on a form to be recognized by others). A leaked identity card number does not equal identity theft -- but combined with other information it can still be abused, so both must be kept safe.
+> **Everyday Analogy**: Imagine this scenario: the token is like the original identity card (containing chip information, never lent out); the token hash is like the identity card number (which can be printed on a form to be recognized by others). A leaked identity card number does not equal identity theft -- but combined with other information it can still be abused, so both must be kept safe.
 > (The above is an imagined scenario, not a technical description)
 
 > **Privacy Risk** Once a token leaks (e.g., the device is implanted with malware or a backup file is stolen), an attacker can impersonate your identity and join any session. Although the token hash (room number) can be public, long-term use of the same room number will be used by servers or observers to correlate your behavioral trail (traffic analysis).
 >
-> **Protection Recommendation** Store the token only in the TPM/HWID (hardware secure area); do not write it to disk in plaintext, do not export it, and do not back it up; if you need to change your identity, you can apply for a new token and change the room number.
+> **Protection Recommendation** Store the token only in the TPM/HWID (hardware secure area); do not write it to disk in plaintext, do not export it, and do not back it up; if you need to change your identity, you can apply for a new token and change the room number. (**Not implemented in 1.0.0: no TPM/HWID storage** -- this is a protocol-level goal state; the current client treats the token as ordinary configuration and hardware-level protection must be provided by the deployer)
 >
 > **Compliance Note** A token is "identity-identifying data" and should follow the **principle of minimization**: store only the fields necessary to perform the protocol functions (see the field table in 4.1.1), and do not write any personally identifying information (name, phone number, etc.), so as to reduce the damage in case of a data leak.
 
@@ -370,11 +372,11 @@ CRC-16 (Cyclic Redundancy Check)
 └── Rationale: transmission media (network cables, Wi-Fi, electromagnetic interference) randomly corrupt bits. Note: CRC can only detect **accidental corruption**, not prevent **malicious tampering** (an attacker can recompute the CRC); tamper resistance relies on the Ed25519 signature and the GCM authentication tag
 ```
 
-> ⚠️ **Common Misconception**: CRC verification ≠ integrity protection. CRC is "carelessness detection" (against accidents), while a digital signature/GCM is "strict authentication" (against malice). Treating CRC as a tamper-proofing measure is a common beginner misunderstanding.
+> **Common Misconception**: CRC verification ≠ integrity protection. CRC is "carelessness detection" (against accidents), while a digital signature/GCM is "strict authentication" (against malice). Treating CRC as a tamper-proofing measure is a common beginner misunderstanding.
 
 **Token Hash = SHA-3-256 (full token)**
 
-> 💡 **Addendum (P2P direct-connection placeholder path)**: The above is the standard algorithm for the case "with a TCA token". However, the **pure P2P direct-connection** scenario without a TCA (the official client's default mode) has no token body, so in this case the official client derives a **placeholder token hash** from the PSK:
+> **Addendum (P2P direct-connection placeholder path)**: The above is the standard algorithm for the case "with a TCA token". However, the **pure P2P direct-connection** scenario without a TCA (the official client's default mode) has no token body, so in this case the official client derives a **placeholder token hash** from the PSK:
 
 ```plain
 placeholder token hash = first 32 bytes of HMAC-SHA3-256(PSK, role label)
@@ -422,7 +424,7 @@ CRL (Certificate Revocation List)
 - One server can hold the whitelists of multiple TCAs; the server operator can declare "I recognize tokens issued by TCA-A and TCA-B, but not TCA-C"
 - The authority of a TCA depends on community recognition. There is no mandatory monopoly authority and no "root CA"
 
-> 🔗 **Related Knowledge**: The TCA federation is similar to the CA (certificate authority) system of HTTPS, but with one key difference: HTTPS has a "root CA" (a trust list preinstalled in browsers), while ZT-DSP does not -- each server decides for itself whom to trust. This is the design of "decentralized trust".
+> **Related Knowledge**: The TCA federation is similar to the CA (certificate authority) system of HTTPS, but with one key difference: HTTPS has a "root CA" (a trust list preinstalled in browsers), while ZT-DSP does not -- each server decides for itself whom to trust. This is the design of "decentralized trust".
 
 > **Privacy Risk** When issuing a token, the TCA may learn your device information (depending on its verification process). The TCA does not participate in communication and does not hold communication keys, but the "device-token" mapping it holds is sensitive data; if the TCA is compromised or coerced, it may leak your identity-correlation information.
 >
@@ -432,12 +434,12 @@ CRL (Certificate Revocation List)
 
 ### 4.1.3 Authorization Code (Optional Strengthening Layer)
 
-Some servers require the client to provide an authorization code in addition to the token. The authorization code is issued by a TCA and bound to a specific server, and the device writes it into the TPM/HWID on first access. The server can thereby manage each device individually (ban, mute, rate-limit). A client without an authorization code cannot enter a server that requires one, even if it holds a valid token.
+Some servers require the client to provide an authorization code in addition to the token. The authorization code is issued by a TCA and bound to a specific server, and by protocol design the device writes it into the TPM/HWID on first access (**not implemented in 1.0.0 -- writing to TPM/HWID is planned for a later version**). The server can thereby manage each device individually (ban, mute, rate-limit). A client without an authorization code cannot enter a server that requires one, even if it holds a valid token.
 
 - **Token = identity card**: proves "you are a legitimate person"
 - **Authorization code = access card**: proves "you are allowed to enter this particular hotel"
 
-> 🏠 **Everyday Analogy**: Imagine this scenario: the token is an identity card (valid nationwide), and the authorization code is a company access card (valid only for this company). Losing the access card does not affect the validity of the identity card; revoking the access card also does not affect your identity on other servers.
+> **Everyday Analogy**: Imagine this scenario: the token is an identity card (valid nationwide), and the authorization code is a company access card (valid only for this company). Losing the access card does not affect the validity of the identity card; revoking the access card also does not affect your identity on other servers.
 > (The above is an imagined scenario, not a technical description)
 
 ### 4.1.4 Device-Specific Key (PSK)
@@ -445,8 +447,8 @@ Some servers require the client to provide an authorization code in addition to 
 PSK (Pre-Shared Key) is the core anchor of the ZT-DSP security system.
 
 - **Length**: a 256-bit true random number
-- **Storage location**: the device's TPM (Trusted Platform Module) or HWID (Hardware Identifier)
-- **Properties**: physically bound, non-exportable, non-copyable
+- **Storage location**: by protocol design, the device's TPM (Trusted Platform Module) or HWID (Hardware Identifier); **not implemented in 1.0.0 -- the caller keeps it in a configuration file or environment variable**
+- **Properties**: the protocol goal is physical binding, non-exportability and non-copyability; **1.0.0 provides none of these hardware protections -- planned for a later version**
 - **Purpose**: participates in session key derivation; it is the root basis of trust across all communication scenarios
 
 ```plain
@@ -471,11 +473,11 @@ HWID (Hardware Identifier)
 
 > **Privacy Risk** The PSK is key material with "single-point leakage causing global damage": after a leak, an attacker can impersonate your identity, decrypt communications (within the range of the leaked history), and join any session. It is also a primary target of supply-chain attacks (implanting a backdoor before the hardware/software leaves the factory).
 >
-> **Protection Recommendation** (1) Use only devices with a TPM (the PSK never leaves the chip); (2) regularly check the origin of device firmware and be wary of "preinstalled software" of unknown origin; (3) if you suspect the PSK has leaked, immediately revoke the old token, apply for a new token, and change the device (when the PSK is bound to hardware, changing the device changes the key); (4) side-channel attacks (power analysis, electromagnetic leakage) are threats in physical-contact scenarios, and high-security scenarios should use devices with shielding measures.
+> **Protection Recommendation** (1) Use only devices with a TPM (the PSK never leaves the chip) -- **note: the 1.0.0 client neither writes the PSK into a chip nor uses a TPM, so the deployer must enforce this themselves**; (2) regularly check the origin of device firmware and be wary of "preinstalled software" of unknown origin; (3) if you suspect the PSK has leaked, immediately revoke the old token, apply for a new token, and change the device (when the PSK is bound to hardware, changing the device changes the key); (4) side-channel attacks (power analysis, electromagnetic leakage) are threats in physical-contact scenarios, and high-security scenarios should use devices with shielding measures.
 >
 > **Compliance Note** The PSK is "key material"; follow cryptographic management best practices: keys should be managed in layers (root keys / session keys separated), the scope of use should be minimized (the PSK only participates in derivation and does not directly encrypt data), and key rotation and destruction mechanisms should be established.
 
-> ⚠️ **Common Misconception**: A PSK is a "pre-shared key", but it is **not a passphrase/password**. A password is a short string memorable by humans (guessable, brute-forceable); a PSK is a 256-bit true random number (unguessable, generated by hardware). The security of the two differs by orders of magnitude; do not treat a PSK with the mindset of "setting a password".
+> **Common Misconception**: A PSK is a "pre-shared key", but it is **not a passphrase/password**. A password is a short string memorable by humans (guessable, brute-forceable); a PSK is a 256-bit true random number (unguessable, generated by hardware). The security of the two differs by orders of magnitude; do not treat a PSK with the mindset of "setting a password".
 
 ### 4.1.5 Multi-Token and Multi-Server Strategy
 
@@ -485,7 +487,7 @@ One device can hold multiple tokens and connect to multiple servers:
 2. **Redundancy**: if TCA-A is shut down, you can immediately switch to a TCA-B token and continue communicating
 3. **Anonymity**: different servers see you using different token hashes, so they cannot correlate your identity across servers
 
-> 🔗 **Related Knowledge**: This is like the "one password per website" strategy in password managers -- spreading trust across multiple independent authorities, so that the failure or betrayal of any single authority has only a local effect.
+> **Related Knowledge**: This is like the "one password per website" strategy in password managers -- spreading trust across multiple independent authorities, so that the failure or betrayal of any single authority has only a local effect.
 
 ---
 
@@ -520,7 +522,7 @@ In ZT-DSP, the handshake is divided into four phases:
 5. **Capability flags**: declares the modules and cryptographic parameters that A supports (such as the list of supported encryption algorithms and parameters)
 6. **Access nonce**: conforms to the parameters declared by the server library (length, rate, format); it serves as an identity heartbeat, proving that A is "alive" and holds the correct key material
 
-> 📦 **On-the-wire frame format (checked byte by byte against the official client)**: On the network, the above 6 items of information are not "6 independent fields"; they are packed into one phase-one frame (**for the complete byte-by-byte layout, the on-the-wire structure and validation rules of the parameter JSON, and the upper-limit constants, see Appendix F.1; under the default parameters this frame is about 228 bytes minimum**):
+> **On-the-wire frame format (checked byte by byte against the official client)**: On the network, the above 6 items of information are not "6 independent fields"; they are packed into one phase-one frame (**for the complete byte-by-byte layout, the on-the-wire structure and validation rules of the parameter JSON, and the upper-limit constants, see Appendix F.1; under the default parameters this frame is about 228 bytes minimum**):
 
 ```plain
 Phase-one frame (on-the-wire format):
@@ -534,7 +536,7 @@ Field mapping:
 • access nonce (nonce, limit 512 bytes) → see the formula below; the peer verifies whether its length equals the declared random_len
 ```
 
-> 🔑 **The true origin of the access nonce (common pitfall)**: Early drafts once said that "the access nonce is derived from the PSK, the TPM/HWID, and the TCA token", which does not match the official implementation. The official client actually does:
+> **The true origin of the access nonce (common pitfall)**: Early drafts once said that "the access nonce is derived from the PSK, the TPM/HWID, and the TCA token", which does not match the official implementation. The official client actually does:
 
 ```plain
 access nonce = HKDF-SHA3-256(IKM = PSK, salt = fresh random salt(32B), info = "ZT-DSP-PHASE1-NONCE-v3", output length = random_len bits)
@@ -548,9 +550,9 @@ access nonce = HKDF-SHA3-256(IKM = PSK, salt = fresh random salt(32B), info = "Z
 | salt = fresh random salt | **Input**: a random salt newly generated for each handshake, preventing an attacker from precomputing (offline brute-forcing) the PSK derivation result |
 | info = "ZT-DSP-PHASE1-NONCE-v3" | **Context string**: identifies the purpose and prevents producing the same value as other derivations (MK/EK, etc.) |
 
-> 💡 **Practical Note**: The access nonce is **not** a purely random number, but a "PSK-driven deterministic random number" -- the peer only verifies that its length equals the declared random_len, and **cannot (and does not attempt to) recompute it**; whether "it was derived from the correct PSK" is indirectly reflected by the phase-three confirmation tag (wrong PSK → wrong MK → the tag must be wrong). This is why it is called an "identity heartbeat": only those holding the same PSK know the rhythm of the heartbeat.
+> **Practical Note**: The access nonce is **not** a purely random number, but a "PSK-driven deterministic random number" -- the peer only verifies that its length equals the declared random_len, and **cannot (and does not attempt to) recompute it**; whether "it was derived from the correct PSK" is indirectly reflected by the phase-three confirmation tag (wrong PSK → wrong MK → the tag must be wrong). This is why it is called an "identity heartbeat": only those holding the same PSK know the rhythm of the heartbeat.
 
-> 💡 **Practical Interpretation**: The core logic of phase one is to "**prove that you hold a legitimate identity, but never reveal the identity secret**". What A presents is the **hash** of the token (the room number) and the TCA's **signature** (publicly verifiable), not the token itself or the PSK -- imagine this scenario: it is like a guest showing the front desk a photocopy of an identity card and its anti-counterfeit watermark, rather than handing over the original identity card. (The above is an imagined scenario, not a technical description)
+> **Practical Interpretation**: The core logic of phase one is to "**prove that you hold a legitimate identity, but never reveal the identity secret**". What A presents is the **hash** of the token (the room number) and the TCA's **signature** (publicly verifiable), not the token itself or the PSK -- imagine this scenario: it is like a guest showing the front desk a photocopy of an identity card and its anti-counterfeit watermark, rather than handing over the original identity card. (The above is an imagined scenario, not a technical description)
 
 > **Privacy Risk** In phase one, the source/target token hashes are transmitted in **plaintext**, so the server (and any observers along the path) can see that "H(Token_A) is looking for H(Token_B)". This means the server knows the metadata of "who is looking for whom" -- although it does not know who the real person behind the room number is, long-term observation can build a behavioral profile of the device.
 >
@@ -565,7 +567,7 @@ access nonce = HKDF-SHA3-256(IKM = PSK, salt = fresh random salt(32B), info = "Z
 3. **Waiting-pool matching**: look in the waiting pool for whether there is a guest holding H(Token_A) (that is, B has already arrived and is waiting for A). If there is → pair A and B and send them into the same room; if there is not → put A into the waiting pool and wait for B to arrive
 4. **Waiting-pool management**: each registration form in the waiting pool is stored independently and is invisible to the others; waiting entries are automatically cleared after 30 seconds (to prevent long-term occupation of memory); the front desk never broadcasts A's registration information to the other people in the lobby
 
-> 💡 **Practical Note (parameter-tuning pitfall)**: The most common mistake beginners make when setting up a server is "parameters not aligned" -- the client sends packets with the default parameters while the server checks against a custom library declaration, so all packets are silently dropped, showing up as "cannot connect and no error at all". Troubleshooting method: compare, one by one, the **7 matching parameters** in both parties' library files -- random nonce length (random_len), generation rate (random_rate), negotiation window (window), key length (key_len), hash algorithm (hash), encryption algorithm (aead), module flags (module_flags) -- they must match exactly (the official client's `--version` and its startup parameter printout can be compared directly).
+> **Practical Note (parameter-tuning pitfall)**: The most common mistake beginners make when setting up a server is "parameters not aligned" -- the client sends packets with the default parameters while the server checks against a custom library declaration, so all packets are silently dropped, showing up as "cannot connect and no error at all". Troubleshooting method: compare, one by one, the **7 matching parameters** in both parties' library files -- random nonce length (random_len), generation rate (random_rate), negotiation window (window), key length (key_len), hash algorithm (hash), encryption algorithm (aead), module flags (module_flags) -- they must match exactly (the official client's `--version` and its startup parameter printout can be compared directly).
 
 ### 4.2.2 Phase Two: Key Synchronization (Exchanging Secret Codes Inside the Room)
 
@@ -593,20 +595,20 @@ Forward Secrecy (FS)
 └── Rationale: a long-term key leak is something that may happen sooner or later (the device is compromised, the authority is coerced); forward secrecy limits the damage to "after the leak" and protects all historical communications
 ```
 
-> 🏠 **Everyday Analogy**: Imagine this scenario: forward secrecy is like "changing to a new lock at every meeting" -- even if your master key (PSK) is stolen some day, the thief can only open future doors and cannot open any of the past rooms that used the old locks.
+> **Everyday Analogy**: Imagine this scenario: forward secrecy is like "changing to a new lock at every meeting" -- even if your master key (PSK) is stolen some day, the thief can only open future doors and cannot open any of the past rooms that used the old locks.
 > (The above is an imagined scenario, not a technical description)
 
 **Step 2: Exchange public keys**
 
 A and B exchange public keys pk_A and pk_B through the server. Public keys can be transmitted openly, and it does no harm even if they are intercepted; the server is only responsible for forwarding the public keys and cannot derive the shared secret.
 
-> 📦 **On-the-wire flow (checked against the official client)**:
+> **On-the-wire flow (checked against the official client)**:
 >
 > 1. Initiator A sends: `[pub_len(4B)] [pk_A(32B)] [session_salt(32B)]` -- the session salt is sent together with A's public-key packet
 > 2. After receiving it, responder B **computes DH first**, and only then decides whether to respond: if the public-key length is abnormal or it is a low-order point (such as all zeros, u=1, or other invalid values), B will **strictly silently drop** it -- sending no bytes at all and not actively closing the connection (security hardening: prevents "the response frame from being leaked before verification fails")
 > 3. Only after B passes verification does it send back: `[pub_len(4B)] [pk_B(32B)]` (the initiator frame is 68 bytes in total and the responder frame is 36 bytes in total; for the ordering constraint that the responder "computes DH before responding" and the frame layout details, see Appendix F.3)
 >
-> ⚠️ **Common Misconception**: A public key is **public** information and can safely be handed to the server for forwarding; but the private keys (sk_A/sk_B) must **never** leave the device. Imagine this scenario: think of the public key as a "locked mailbox number" -- anyone can drop a letter into the mailbox (encrypt with the public key), but only the person holding the key (the private key) can open it. (The above is an imagined scenario, not a technical description)
+> **Common Misconception**: A public key is **public** information and can safely be handed to the server for forwarding; but the private keys (sk_A/sk_B) must **never** leave the device. Imagine this scenario: think of the public key as a "locked mailbox number" -- anyone can drop a letter into the mailbox (encrypt with the public key), but only the person holding the key (the private key) can open it. (The above is an imagined scenario, not a technical description)
 
 **Step 3: Compute the shared secret**
 
@@ -622,7 +624,7 @@ DH (Diffie-Hellman)
 └── Rationale: the earliest solution to the problem of "transmitting secrets across the air" (1976), and the ancestor of all modern key exchanges. X25519 is its modern elliptic-curve version
 ```
 
-> ⚠️ **Common Misconception**: The DH exchange itself **does not prevent man-in-the-middle** attacks -- an attacker can perform one DH with A and one with B separately (the "two-person circle" attack). ZT-DSP prevents MITM with two barriers: **(1) the PSK participates in derivation** (Step 4) -- the attacker has no PSK, so even after completing DH he derives a wrong key; **(2) the phase-three confirmation tag exchange** (4.2.3) -- the two parties exchange HMAC confirmation tags that bind all handshake material, and if either party's identity announcement is replaced, the tags will not match and the handshake fails immediately. All three layers of protection (PSK + DH + salt) are indispensable.
+> **Common Misconception**: The DH exchange itself **does not prevent man-in-the-middle** attacks -- an attacker can perform one DH with A and one with B separately (the "two-person circle" attack). ZT-DSP prevents MITM with two barriers: **(1) the PSK participates in derivation** (Step 4) -- the attacker has no PSK, so even after completing DH he derives a wrong key; **(2) the phase-three confirmation tag exchange** (4.2.3) -- the two parties exchange HMAC confirmation tags that bind all handshake material, and if either party's identity announcement is replaced, the tags will not match and the handshake fails immediately. All three layers of protection (PSK + DH + salt) are indispensable.
 
 **Step 4: Derive the session master key**
 
@@ -639,15 +641,15 @@ MK = HKDF-SHA3-256(IKM = PSK ‖ DH, salt = session_salt, info = "ZT-DSP-MK-v3",
 | 1 | `info = "ZT-DSP-MK-v3"` | **Context string**: the protocol version identifier. Prevents key confusion between different protocol versions/purposes (if two protocols derived from the same input, they would get the same key, which is dangerous) |
 | 1 | `output = 256 bits` | **Output length**: requires deriving a 256-bit key |
 
-> ⚠️ **Common Misconception (common pitfall)**: Early drafts wrote the formula as `MK = HKDF(PSK ‖ DH ‖ session_salt)`, which makes the three inputs look "equal and parallel". But the official implementation (the `HKDF` class of the `cryptography` library) passes `session_salt` as a **separate salt parameter** (the standard usage of RFC 5869), and the IKM is only `PSK ‖ DH`. The two derivation results are **completely different** -- a client implemented according to the early-draft formula will inevitably fail the handshake with the official client (the phase-three confirmation tags will not match). This is also a cautionary tale about "open protocol, free implementation": freedom of implementation does not mean that formula details may be changed at will; the parameters and the formula must be consistent with the library declaration.
+> **Common Misconception (common pitfall)**: Early drafts wrote the formula as `MK = HKDF(PSK ‖ DH ‖ session_salt)`, which makes the three inputs look "equal and parallel". But the official implementation (the `HKDF` class of the `cryptography` library) passes `session_salt` as a **separate salt parameter** (the standard usage of RFC 5869), and the IKM is only `PSK ‖ DH`. The two derivation results are **completely different** -- a client implemented according to the early-draft formula will inevitably fail the handshake with the official client (the phase-three confirmation tags will not match). This is also a cautionary tale about "open protocol, free implementation": freedom of implementation does not mean that formula details may be changed at will; the parameters and the formula must be consistent with the library declaration.
 
-> 💡 **Practical Interpretation (triple-input formula)**: Why three inputs instead of one? Historical lessons tell us: using only the PSK (the DRNG approach) → a leak means total collapse; using only DH → impersonation cannot be prevented; using only a salt → anyone can compute it. Each of the three has its own role: **the PSK handles "who you are" (identity anchoring, as part of the IKM), DH handles "this session is unique" (forward secrecy, the other part of the IKM), and the salt handles "cannot be guessed" (as the salt parameter of HKDF)**. If any one is missing, the security model collapses.
+> **Practical Interpretation (triple-input formula)**: Why three inputs instead of one? Historical lessons tell us: using only the PSK (the DRNG approach) → a leak means total collapse; using only DH → impersonation cannot be prevented; using only a salt → anyone can compute it. Each of the three has its own role: **the PSK handles "who you are" (identity anchoring, as part of the IKM), DH handles "this session is unique" (forward secrecy, the other part of the IKM), and the salt handles "cannot be guessed" (as the salt parameter of HKDF)**. If any one is missing, the security model collapses.
 
 **Step 5: Destroy the ephemeral private keys**
 
 sk_A and sk_B are thoroughly zeroized from memory and are no longer retained. The ephemeral private keys exist only within the brief window of phase two. Even if an attacker compromises the device immediately after the session ends, he cannot recover the already-destroyed ephemeral private keys, so he cannot recompute the DH and cannot decrypt historical communications. **This is the engineering realization of forward secrecy.**
 
-> 💡 **Practical Tip (Implementation Notes)**: Destruction is not merely "zeroing out"; it must also prevent the compiler from optimizing the zeroing away (the optimizer may treat the zeroing as dead code and skip it). Implementations should use a dedicated "secure zeroization" function (APIs such as `secure_zeroize`/`explicit_bzero`) and lock the memory pages holding keys (mlock) to prevent them from being paged out to disk.
+> **Practical Tip (Implementation Notes)**: Destruction is not merely "zeroing out"; it must also prevent the compiler from optimizing the zeroing away (the optimizer may treat the zeroing as dead code and skip it). Implementations should use a dedicated "secure zeroization" function (APIs such as `secure_zeroize`/`explicit_bzero`) and lock the memory pages holding keys (mlock) to prevent them from being paged out to disk.
 
 ### 4.2.3 Phase 3: Anchor Locking (Confirming Room Uniqueness)
 
@@ -684,7 +686,7 @@ session ID = the first 32 bytes of HKDF-SHA3-256(IKM = anchor, info = "ZT-DSP-SI
 | 1 | `info = "ZT-DSP-SID-v3"` | **Context string**: marks the purpose as "session ID," preventing confusion with other derivations |
 | 1 | `the first 32 bytes` | **Truncation**: after deriving 256 bits, take only the first 32 bytes (the session ID field length) |
 
-> 💡 **Practical Interpretation**: The session ID is **plaintext** (the server must read it to route), but it is deterministically derived from the anchor -- a session ID forged by an attacker without the correct MK is discarded outright in Phase 4 as a "session ID mismatch." This is the design of "routing information visible but unforgeable."
+> **Practical Interpretation**: The session ID is **plaintext** (the server must read it to route), but it is deterministically derived from the anchor -- a session ID forged by an attacker without the correct MK is discarded outright in Phase 4 as a "session ID mismatch." This is the design of "routing information visible but unforgeable."
 
 **3. Derive the session encryption keys (distinguishing send and receive directions)**
 
@@ -705,7 +707,7 @@ EK_recv = HKDF-SHA3-256(IKM = MK ‖ anchor ‖ 0x02, info = "ZT-DSP-EK-v3", out
 | 1 | `0x01 / 0x02` | **Role byte**: `0x01` is appended to the end of the IKM for the Initiator direction, and `0x02` for the Responder direction. Role: **distinguish the keys of the send and receive directions** -- A's EK_send exactly equals B's EK_recv, and vice versa; neither side can impersonate the peer using "its own send key" |
 | 1 | `info = "ZT-DSP-EK-v3"` | **Context string**: marks the key's purpose as "encryption," distinguishing it from keys for the anchor, authentication, and other purposes |
 
-> ⚠️ **Common Misconception (common pitfall)**: Early drafts wrote `EK = HKDF(MK ‖ anchor, ...)` -- direction-agnostic, as if both sides shared a single EK. The official implementation actually derives **two** directional keys, distinguished by the role byte (0x01/0x02) at the end of the IKM. This is both a security design (preventing "reflection attacks": bouncing a packet the peer sent you straight back) and an interoperability detail: a client implemented per the early-draft formula will fail the handshake due to key mismatch.
+> **Common Misconception (common pitfall)**: Early drafts wrote `EK = HKDF(MK ‖ anchor, ...)` -- direction-agnostic, as if both sides shared a single EK. The official implementation actually derives **two** directional keys, distinguished by the role byte (0x01/0x02) at the end of the IKM. This is both a security design (preventing "reflection attacks": bouncing a packet the peer sent you straight back) and an interoperability detail: a client implemented per the early-draft formula will fail the handshake due to key mismatch.
 
 **4. Exchange confirmation tags (anchor confirmation)**
 
@@ -727,13 +729,13 @@ Responder sends: confirm_tag_B = HMAC-SHA3-256(MK, "ZT-DSP-CONFIRM-RESP-v3" ‖ 
 
 Exchange order (per the official implementation): the initiator sends its own tag first -> the responder reads it (silently discarding only on frame-level errors -- read failure/abnormal length/timeout) -> the responder sends its own tag -> **both parties each** compare the peer's tag in constant time; on mismatch -> erase all keys and report "anchor confirmation failed: PSK mismatch, role mismatch, or reflection/man-in-the-middle attack." Note: validation of the tag **content** happens after both parties have finished exchanging, not "the responder validates before sending" -- this differs from the "validate first, then respond" order of Phases 1/2 (for the precise timing see Appendix F.4 and Appendix H).
 
-> 🔑 **Practical Interpretation**: The confirmation tag is the "final exam" of the whole handshake -- if any earlier step (the identity announcement of Phase 1, the public keys and DH of Phase 2) was tampered with or miscomputed, the final tag is bound to mismatch and the handshake fails outright. This is also where the "PSK prevents impersonation" of 4.2.2 truly lands: an attacker without the PSK completes DH but derives a wrong MK, so tag validation is bound to fail.
+> **Practical Interpretation**: The confirmation tag is the "final exam" of the whole handshake -- if any earlier step (the identity announcement of Phase 1, the public keys and DH of Phase 2) was tampered with or miscomputed, the final tag is bound to mismatch and the handshake fails outright. This is also where the "PSK prevents impersonation" of 4.2.2 truly lands: an attacker without the PSK completes DH but derives a wrong MK, so tag validation is bound to fail.
 
 **5. Initialize the sequence number**
 
 Initial sequence number = 0 (both sides synchronize to zero). The sequence number starts at 0 and increments by 1 for each data packet sent. The receiver accepts only packets whose sequence number is greater than the last received value, preventing replay attacks.
 
-> 💡 **Practical tip**: the sequence number is a 64-bit (8-byte) integer; at 1024 packets per second (the default `random_rate`) it takes roughly 570 million years to wrap — but an implementation still must handle the two edge cases of "sequence resets to zero after a session restart" and "an out-of-order packet arrives". **This protocol mandates a strictly monotonic check and forbids a sliding window**: the receiver accepts only `seq > seq_recv` (`seq_recv` starts at −1); any packet with `seq <= seq_recv` is handled as a replay or stale out-of-order packet — drop it, wipe all keys and terminate the session (see 4.2.4 and Appendix F.5). **Why**: the phase-four nonce is built directly as "fixed 4-byte prefix ‖ seq"; tolerating reordering with a sliding window would reuse a nonce under the same key and break both the confidentiality and the integrity guarantees of the AEAD.
+> **Practical tip**: the sequence number is a 64-bit (8-byte) integer; at 1024 packets per second (the default `random_rate`) it takes roughly 570 million years to wrap — but an implementation still must handle the two edge cases of "sequence resets to zero after a session restart" and "an out-of-order packet arrives". **This protocol mandates a strictly monotonic check and forbids a sliding window**: the receiver accepts only `seq > seq_recv` (`seq_recv` starts at −1); any packet with `seq <= seq_recv` is handled as a replay or stale out-of-order packet — drop it, wipe all keys and terminate the session (see 4.2.4 and Appendix F.5). **Why**: the phase-four nonce is built directly as "fixed 4-byte prefix ‖ seq"; tolerating reordering with a sliding window would reuse a nonce under the same key and break both the confidentiality and the integrity guarantees of the AEAD.
 
 ```plain
 Replay Attack
@@ -746,7 +748,7 @@ Replay Attack
 
 After the confirmation tag is verified and the handshake announcement is complete, **MK, anchor, and PSK are all zeroed from memory** (the official client executes `secure_zero` at the end of Phase 3). Thereafter the entire session retains only: EK_send / EK_recv (for data encryption), the session ID (for routing), and the sequence number (for anti-replay).
 
-> 💡 **Practical Interpretation**: Why erase after use? This is the "minimal exposure surface" principle: the PSK and MK are needed only during the handshake; the earlier they are destroyed, the less key material remains on a compromised device. Even if an attacker compromises the device at that moment, they cannot obtain the PSK and MK -- only the current session's EK, and the EK is continuously locked and constantly rotated (4.2.5).
+> **Practical Interpretation**: Why erase after use? This is the "minimal exposure surface" principle: the PSK and MK are needed only during the handshake; the earlier they are destroyed, the less key material remains on a compromised device. Even if an attacker compromises the device at that moment, they cannot obtain the PSK and MK -- only the current session's EK, and the EK is continuously locked and constantly rotated (4.2.5).
 
 ### 4.2.4 Phase 4: Encrypted Data Transmission (Box Delivery)
 
@@ -754,7 +756,7 @@ After the confirmation tag is verified and the handshake announcement is complet
 
 **[Packet Structure (complete fields)]:**
 
-> 📦 **Wire Layout (verified byte-by-byte against the official client)**: A Phase 4 packet consists of two parts, a "plaintext header + GCM ciphertext," and inside the ciphertext are 7 more fields (**the byte-by-byte layout table with offsets, the fixed order of the receive-validation pipeline, and the measured 165-byte heartbeat packet size are in Appendix F.5; the precise encoding of random padding and the fmt marker is in Appendix G**):
+> **Wire Layout (verified byte-by-byte against the official client)**: A Phase 4 packet consists of two parts, a "plaintext header + GCM ciphertext," and inside the ciphertext are 7 more fields (**the byte-by-byte layout table with offsets, the fixed order of the receive-validation pipeline, and the measured 165-byte heartbeat packet size are in Appendix F.5; the precise encoding of random padding and the fmt marker is in Appendix G**):
 
 ```plain
 Wire packet (after encryption):
@@ -767,19 +769,19 @@ Plaintext payload (before encryption, i.e. the content of the GCM ciphertext):
 
 | Field name | Length | Encrypted | Description |
 |----------|------|------|------|
-| Destination token hash | 32B | ✅ | Encrypted with the session key EK, preventing plaintext identity linkage. The server sees the encrypted destination hash and cannot know whom the message is sent to |
-| Source token hash | 32B | ✅ | Same as above. Encryption prevents traffic analysts from building a social graph through source-destination linkage |
-| Timestamp | 8B | ✅ | Millisecond Unix timestamp (uint64 big-endian). The receiver checks `|current time − timestamp| <= timestamp window` (default 30 seconds), preventing replay and delayed interception |
-| Payload format marker fmt | 1B | ✅ | `0x00` = no random padding (default), `0x01` = with random padding. The receiver strips padding per this marker; the official client can enable padding unilaterally without negotiation between the two parties |
-| Random padding | 0~2048B | ✅ | Reference recommendation 512~2048B. Padding removes the length fingerprint so that all packets are similar in size. Off by default in the official client (enabled via `--padding-min/max`) |
-| Pre-key seed next_seed | 32B | ✅ | Ratchet seed for the next packet: `new_EK = HKDF-SHA3-256(IKM = current EK ‖ next_seed, info = "ZT-DSP-EK-ROTATE", output 256 bits)` (continuous locking, see 4.2.5) |
-| User plaintext | variable | ✅ | The actual message content (including heartbeat empty packets: plaintext length 0) |
-| Session ID | 32B | ❌ | Plaintext routing field, derived from the anchor. The server delivers the packet to the correct room based on the session ID |
-| Sequence number | 8B | ❌ | Plaintext; 64-bit monotonically increasing, preventing replay attacks. The receiver checks that the sequence number is greater than the last received value, otherwise it discards the packet |
-| Ciphertext length | 4B | ❌ | Plaintext length field; the receiver reads it first, then reads the ciphertext |
-| GCM authentication tag | 16B | ❌ | The authentication tag automatically attached by AES-256-GCM. **Authentication scope = AAD + all ciphertext**; tampering with any field causes validation to fail |
+| Destination token hash | 32B | Yes | Encrypted with the session key EK, preventing plaintext identity linkage. The server sees the encrypted destination hash and cannot know whom the message is sent to |
+| Source token hash | 32B | Yes | Same as above. Encryption prevents traffic analysts from building a social graph through source-destination linkage |
+| Timestamp | 8B | Yes | Millisecond Unix timestamp (uint64 big-endian). The receiver checks `|current time − timestamp| <= timestamp window` (default 30 seconds), preventing replay and delayed interception |
+| Payload format marker fmt | 1B | Yes | `0x00` = no random padding (default), `0x01` = with random padding. The receiver strips padding per this marker; the official client can enable padding unilaterally without negotiation between the two parties |
+| Random padding | 0~2048B | Yes | Reference recommendation 512~2048B. Padding removes the length fingerprint so that all packets are similar in size. Off by default in the official client (enabled via `--padding-min/max`) |
+| Pre-key seed next_seed | 32B | Yes | Ratchet seed for the next packet: `new_EK = HKDF-SHA3-256(IKM = current EK ‖ next_seed, info = "ZT-DSP-EK-ROTATE", output 256 bits)` (continuous locking, see 4.2.5) |
+| User plaintext | variable | Yes | The actual message content (including heartbeat empty packets: plaintext length 0) |
+| Session ID | 32B | No | Plaintext routing field, derived from the anchor. The server delivers the packet to the correct room based on the session ID |
+| Sequence number | 8B | No | Plaintext; 64-bit monotonically increasing, preventing replay attacks. The receiver checks that the sequence number is greater than the last received value, otherwise it discards the packet |
+| Ciphertext length | 4B | No | Plaintext length field; the receiver reads it first, then reads the ciphertext |
+| GCM authentication tag | 16B | No | The authentication tag automatically attached by AES-256-GCM. **Authentication scope = AAD + all ciphertext**; tampering with any field causes validation to fail |
 
-> 🔑 **Two key constructions (required reading for implementers)**:
+> **Two key constructions (required reading for implementers)**:
 >
 > - **AAD (Additional Authenticated Data, not encrypted but authenticated)**: `AAD = session ID ‖ sequence number(8B big-endian)`, 40 bytes in total. The server must be able to read the session ID and sequence number to route and filter, yet must not let attackers tamper with them -- AAD exactly satisfies "visible and tamper-proof." AAD contains no version string.
 > - **GCM nonce (number used once)**: `nonce = 0x00000000(4B) ‖ sequence number(8B big-endian)`, 12 bytes in total. The sequence number increases monotonically -> each packet's nonce is unique, satisfying the hard requirement that "a nonce is never reused under the same key."
@@ -805,7 +807,7 @@ AAD (Additional Authenticated Data)
 └── Rationale: routing fields (session ID, sequence number) must be visible to the server for forwarding, yet must be tamper-proof -- AAD exactly satisfies the dual requirement of "visible and tamper-proof"
 ```
 
-> ⚠️ **Common Misconception**: GCM "authentication" is not the same as a "signature." A GCM authentication tag proves that "the data has not been tampered with and was indeed sent by a party holding the EK," but it cannot prove the sender's identity to a third party (that is the job of Ed25519 signatures). The two mechanisms serve different purposes; do not conflate them.
+> **Common Misconception**: GCM "authentication" is not the same as a "signature." A GCM authentication tag proves that "the data has not been tampered with and was indeed sent by a party holding the EK," but it cannot prove the sender's identity to a third party (that is the job of Ed25519 signatures). The two mechanisms serve different purposes; do not conflate them.
 
 > [Privacy Risk] Although the payload is encrypted, **traffic patterns can still leak information**: packet size (already mitigated by padding), sending frequency, session duration, and connection relationships (the server still knows that "session IDs X and Y are communicating"). This is why the protocol emphasizes random padding + timing jitter (Section 5.4).
 >
@@ -820,7 +822,7 @@ AAD (Additional Authenticated Data)
 3. A forwards the entire packet to B through the server
 4. The server is responsible only for delivery; it does not open the box
 
-> 🔑 **Practical Detail ("consume state first, then attempt to send")**: Before sending, the official client first completes three things: (1) generates a new next_seed and derives the next packet's key `new_EK = HKDF(current EK ‖ next_seed, "ZT-DSP-EK-ROTATE")`; (2) zeroes the current EK in memory and replaces it with new_EK; (3) increments the sequence number by 1. Only then does it encrypt and send the current packet. This means: even if the send fails (network outage, connection cut), the key has already been rotated -- an attacker cannot exploit "send failure means the key was not rotated" to replay old packets. The price is that the session cannot recover after a send failure and can only reconnect (the official client prompts "the session has irreversibly desynchronized").
+> **Practical Detail ("consume state first, then attempt to send")**: Before sending, the official client first completes three things: (1) generates a new next_seed and derives the next packet's key `new_EK = HKDF(current EK ‖ next_seed, "ZT-DSP-EK-ROTATE")`; (2) zeroes the current EK in memory and replaces it with new_EK; (3) increments the sequence number by 1. Only then does it encrypt and send the current packet. This means: even if the send fails (network outage, connection cut), the key has already been rotated -- an attacker cannot exploit "send failure means the key was not rotated" to replay old packets. The price is that the session cannot recover after a send failure and can only reconnect (the official client prompts "the session has irreversibly desynchronized").
 
 **[Receiving Flow]:**
 
@@ -831,7 +833,7 @@ AAD (Additional Authenticated Data)
 5. B checks the timestamp: `|current time − timestamp| > timestamp window` (default 30 seconds) -> the packet **has passed GCM authentication but is outside the window**; in this case **only the plaintext is discarded, while the EK is still rotated and the sequence number advanced** (preventing a permanent session desynchronization when the sender has rotated but the receiver has not) -- **this is the only failure branch that does not terminate the session**
 6. B obtains the plaintext message normally. A packet with plaintext length 0 is a **heartbeat packet**, which the receiver silently skips (the official client sends one every 30 seconds to detect half-open connections)
 
-> 💡 **Practical Tip (both the receive order and the failure policy matter)**: Always process in the order "sequence number -> session ID -> authentication tag -> decryption and internal validation -> timestamp." This order is itself a security design: cheap filtering first (sequence number/session ID), then expensive cryptographic verification (GCM), and only then decryption -- preventing both DoS (junk packets do not trigger decryption) and information leakage (not exposing "why it was dropped"). **Except for the timestamp-window case in step 5, every validation failure must "terminate silently"**: drop the packet, wipe all keys, end the session, and return no error code to the peer -- consistent with the termination policy of Appendix F.5 and with the reference implementation's `session.py` behavior.
+> **Practical Tip (both the receive order and the failure policy matter)**: Always process in the order "sequence number -> session ID -> authentication tag -> decryption and internal validation -> timestamp." This order is itself a security design: cheap filtering first (sequence number/session ID), then expensive cryptographic verification (GCM), and only then decryption -- preventing both DoS (junk packets do not trigger decryption) and information leakage (not exposing "why it was dropped"). **Except for the timestamp-window case in step 5, every validation failure must "terminate silently"**: drop the packet, wipe all keys, end the session, and return no error code to the peer -- consistent with the termination policy of Appendix F.5 and with the reference implementation's `session.py` behavior.
 
 ### 4.2.5 Continuous Locking and Forward Secrecy
 
@@ -859,9 +861,9 @@ This process is **continuous locking**:
 - The virtual room ensures this hopping process is not interrupted by external connections
 - Sub-channels allow multiple independent forward-secrecy chains to exist in parallel within the same room
 
-> 💡 **Practical Tip (keepalive and desynchronization)**: The official client sends an **empty-payload heartbeat packet** (plaintext length 0) every 30 seconds, specifically to detect "half-open connections" (one side has dropped off, but the TCP connection is undetected because no data was sent). Heartbeat packets also participate in ratchet rotation -- even with no messages, the key chain keeps advancing. This is also why "an out-of-window packet must still rotate the EK and advance the sequence number" (4.2.4 receiving flow step 5) is so important: if the sender's heartbeat packet is discarded wholesale for being outside the timestamp window without rotation, the two ratchets desynchronize and all subsequent packets become undecryptable.
+> **Practical Tip (keepalive and desynchronization)**: The official client sends an **empty-payload heartbeat packet** (plaintext length 0) every 30 seconds, specifically to detect "half-open connections" (one side has dropped off, but the TCP connection is undetected because no data was sent). Heartbeat packets also participate in ratchet rotation -- even with no messages, the key chain keeps advancing. This is also why "an out-of-window packet must still rotate the EK and advance the sequence number" (4.2.4 receiving flow step 5) is so important: if the sender's heartbeat packet is discarded wholesale for being outside the timestamp window without rotation, the two ratchets desynchronize and all subsequent packets become undecryptable.
 
-> 🔗 **Related Knowledge**: Continuous locking shares its origin with the "Double Ratchet" idea of the Signal protocol (the encryption foundation of WhatsApp/Signal) -- both "change the key with every message sent." The difference is that ZT-DSP's hopping is done entirely internally by the two parties (the pre-key seed travels with the packet) and does not depend on any server logic.
+> **Related Knowledge**: Continuous locking shares its origin with the "Double Ratchet" idea of the Signal protocol (the encryption foundation of WhatsApp/Signal) -- both "change the key with every message sent." The difference is that ZT-DSP's hopping is done entirely internally by the two parties (the pre-key seed travels with the packet) and does not depend on any server logic.
 
 ## 4.3 Silent Drop Mechanism
 
@@ -871,14 +873,14 @@ If the server returned a different error code for each kind of error (e.g., "len
 
 **Silent drop eliminates this information leakage.** Whatever the attacker sends, the server behaves like a "closed port" -- no response at all. This makes large-scale protocol probing extremely difficult.
 
-> 🏠 **Everyday Analogy**: Picture this scenario: silent drop is like a "light-proof door" -- the person knocking can only get "silence" and cannot tell from the response whether an empty room, a vault, or a whole squad of guards is behind the door. An ordinary protocol's door, by contrast, reveals its internal structure through "creaks" (error codes).
+> **Everyday Analogy**: Picture this scenario: silent drop is like a "light-proof door" -- the person knocking can only get "silence" and cannot tell from the response whether an empty room, a vault, or a whole squad of guards is behind the door. An ordinary protocol's door, by contrast, reveals its internal structure through "creaks" (error codes).
 > (The above is a hypothetical scenario, not a technical description)
 
-> 💡 **Practical Tip (implementation pitfalls)**: The "silence" of silent drop must be carried through to the end -- (1) return no network response; (2) record no logs (logs themselves are feedback for the attacker and also make the server a forensic target); (3) perform no expensive operation before dropping (drop at the outermost parameter check, preventing DoS amplification); (4) keep the timing of the drop path as consistent as possible with the normal path (so that attackers cannot infer "this really is a ZT-DSP server" from "response time differences").
+> **Practical Tip (implementation pitfalls)**: The "silence" of silent drop must be carried through to the end -- (1) return no network response; (2) record no logs (logs themselves are feedback for the attacker and also make the server a forensic target); (3) perform no expensive operation before dropping (drop at the outermost parameter check, preventing DoS amplification); (4) keep the timing of the drop path as consistent as possible with the normal path (so that attackers cannot infer "this really is a ZT-DSP server" from "response time differences").
 
-> ⚠️ **Common Misconception**: Silent drop ≠ "no defenses." It is an "anti-probing" layer, not an "anti-attack" layer -- a legitimate packet that passes the parameter check must still go through the full line of defenses: signature verification, CRL lookup, GCM validation, and so on. A server that relies only on silent drop without implementing validation logic will be easily breached by a malicious client holding a legitimate token.
+> **Common Misconception**: Silent drop ≠ "no defenses." It is an "anti-probing" layer, not an "anti-attack" layer -- a legitimate packet that passes the parameter check must still go through the full line of defenses: signature verification, CRL lookup, GCM validation, and so on. A server that relies only on silent drop without implementing validation logic will be easily breached by a malicious client holding a legitimate token.
 
-> 📐 **Supplementary note**: This section discusses the **idea** of silent drop. The Responder-side **behavioral contract** of "strict silence" -- which failures must be silent (the full trigger table), the precise semantics of "send nothing, close nothing, suspend and swallow bytes" during silence, and why the initiator is asymmetric -- is in **Appendix F.2**; the complete matrix of failure paths at each phase is in **Appendix H.4**.
+> **Supplementary note**: This section discusses the **idea** of silent drop. The Responder-side **behavioral contract** of "strict silence" -- which failures must be silent (the full trigger table), the precise semantics of "send nothing, close nothing, suspend and swallow bytes" during silence, and why the initiator is asymmetric -- is in **Appendix F.2**; the complete matrix of failure paths at each phase is in **Appendix H.4**.
 
 ---
 
@@ -944,7 +946,7 @@ WireGuard (a modern VPN tunneling protocol)
 - PSK verification: even inside a room, without the PSK the HKDF derivation after X25519 cannot be completed
 - Sequence number and anchor: a malicious client cannot predict the sequence number and keys of a legitimate session
 
-> 💡 **Practical Interpretation**: The defenses in this section are **layered** -- signature verification stops "the undocumented," the authorization code stops "those without access," the PSK stops "impersonators," and the sequence number stops "replayers." Each layer works independently; breach one and the next still stands. This is the idea of "Defense in Depth": never stake security on a single mechanism.
+> **Practical Interpretation**: The defenses in this section are **layered** -- signature verification stops "the undocumented," the authorization code stops "those without access," the PSK stops "impersonators," and the sequence number stops "replayers." Each layer works independently; breach one and the next still stands. This is the idea of "Defense in Depth": never stake security on a single mechanism.
 
 ## 5.3 Untrusted TCA Scenario
 
@@ -957,7 +959,7 @@ WireGuard (a modern VPN tunneling protocol)
 - Historical sessions unaffected: X25519 provides forward secrecy; the keys of established sessions do not depend on the TCA
 - Multiple tokens per device: users can hold tokens from multiple TCAs, reducing single-point dependence
 
-> 🏠 **Everyday Analogy**: Picture this scenario: multi-TCA federation is like "multiple national passports" -- if one country invalidates your passport, you still have other countries' passports to use; the server operator is like "multi-national border control" -- a hotel that does not accept country A's passport may accept country B's.
+> **Everyday Analogy**: Picture this scenario: multi-TCA federation is like "multiple national passports" -- if one country invalidates your passport, you still have other countries' passports to use; the server operator is like "multi-national border control" -- a hotel that does not accept country A's passport may accept country B's.
 > (The above is a hypothetical scenario, not a technical description)
 
 ## 5.4 Full-Chain Active Confrontation Scenario (Layered Attacks (Nine-Layer Threat))
@@ -995,19 +997,19 @@ Traffic Analysis
 | Random traffic killing | Single-path dependency; interruption possible (mitigated by spreading across multiple servers) |
 | Random traffic delayed interception | Timestamp + sequence number + pre-key hopping; an out-of-window packet only has its plaintext dropped and does not terminate the session |
 
-> 💡 **Practical Interpretation (what the table teaches)**: Note that almost every defense mechanism means "**if validation fails, do not converse with the attacker**" -- the protocol only checks, handles failures silently, and never returns an error code. Two layers must be distinguished: **failures before the session is established** (PSK/signature/format) are true silent drops; **failures after the session is established** (sequence number/session ID/GCM/token hash) follow the silent termination of Appendix F.5 (drop the packet, wipe the keys, end the session). This "say little, do much" style runs through the whole protocol: every defense mechanism reduces the information an attacker can exploit (timing information, error information, length information). The **precise wire encoding** of the two defenses, padding and jitter (the fmt marker, the pad_len field position, unilateral-enablement semantics), is in Appendix G.
+> **Practical Interpretation (what the table teaches)**: Note that almost every defense mechanism means "**if validation fails, do not converse with the attacker**" -- the protocol only checks, handles failures silently, and never returns an error code. Two layers must be distinguished: **failures before the session is established** (PSK/signature/format) are true silent drops; **failures after the session is established** (sequence number/session ID/GCM/token hash) follow the silent termination of Appendix F.5 (drop the packet, wipe the keys, end the session). This "say little, do much" style runs through the whole protocol: every defense mechanism reduces the information an attacker can exploit (timing information, error information, length information). The **precise wire encoding** of the two defenses, padding and jitter (the fmt marker, the pad_len field position, unilateral-enablement semantics), is in Appendix G.
 
 ## 5.5 Security Guarantees and Boundaries
 
 Under the layered attacks (nine-layer threat) above, ZT-DSP can guarantee:
 
-- ✅ **Confidentiality**: the attacker cannot decrypt communication content (unless the PSK is leaked)
-- ✅ **Integrity**: the attacker cannot tamper with data without being detected
-- ⚠️ **Availability**: under extreme attacks, communication may be interrupted
-- ❌ **Anonymity (absolute)**: if an attacker monitors globally and correlates multiple carriers, anonymity may be reduced
+- **Guaranteed** — **Confidentiality**: the attacker cannot decrypt communication content (unless the PSK is leaked)
+- **Guaranteed** — **Integrity**: the attacker cannot tamper with data without being detected
+- **Conditional** — **Availability**: under extreme attacks, communication may be interrupted
+- **Not guaranteed** — **Anonymity (absolute)**: if an attacker monitors globally and correlates multiple carriers, anonymity may be reduced
 **Absolute security does not exist.** The goal of ZT-DSP is: unbreakable at the cryptographic level, as resilient as possible at the engineering level (resilient, i.e. the ability to recover and survive in a degraded state after being attacked), and to maintain a minimum level of survival in extreme scenarios.
 
-> ⚠️ **Common Misconception (the single most important one in this document)**: **Anonymity ≠ Encryption.** What ZT-DSP guarantees is "content is not decrypted, identity is not impersonated", but it **does not guarantee** that "you as a person will not be discovered". Through traffic analysis, physical positioning, and behavioral patterns, an attacker may still narrow down your range. In addition, cryptographic security ≠ operational security (OPSEC) -- no matter how strong the encryption you use, if spyware is installed on the device, or you yourself leak the door number, you are still not secure.
+> **Common Misconception (the single most important one in this document)**: **Anonymity ≠ Encryption.** What ZT-DSP guarantees is "content is not decrypted, identity is not impersonated", but it **does not guarantee** that "you as a person will not be discovered". Through traffic analysis, physical positioning, and behavioral patterns, an attacker may still narrow down your range. In addition, cryptographic security ≠ operational security (OPSEC) -- no matter how strong the encryption you use, if spyware is installed on the device, or you yourself leak the door number, you are still not secure.
 >
 > [Privacy Risk] Boundaries of the threat model: this protocol does not defend against "physical contact attacks" (forensics after a device is confiscated), does not defend against "side-channel attacks" (power/electromagnetic analysis), and does not defend against "social engineering" (tricking you into handing over a token/door number).
 >
@@ -1035,7 +1037,7 @@ A server operator has the following autonomy:
 - Decide whether to support fallback to old protocol versions
 - Decide whether to keep logs (but note: keeping logs goes against the spirit of the protocol)
 
-> 🔗 **Related Knowledge**: This "venue autonomy" model is similar to IRC servers and Mastodon instances (the Fediverse) -- each node operates independently under its own rules, and an ecosystem forms through mutual recognition. Once you understand this model, you understand why ZT-DSP does not need an "official server".
+> **Related Knowledge**: This "venue autonomy" model is similar to IRC servers and Mastodon instances (the Fediverse) -- each node operates independently under its own rules, and an ecosystem forms through mutual recognition. Once you understand this model, you understand why ZT-DSP does not need an "official server".
 
 ## 7.2 Building a Public-Interest Server
 
@@ -1060,7 +1062,7 @@ IP Address (Internet Protocol Address)
 - Bandwidth recommendation ≥ 100 Mbps (to support multiple concurrent sessions)
 - Memory recommendation ≥ 2 GB (to support the waiting pool and the matching pool)
 
-> 💡 **Practical Tip (pitfall warning)**: ① A cloud provider's "pay-per-traffic" plan may generate a large bill when hit by a flood of malicious traffic -- setting traffic alerts and quotas is recommended; ② the legal environment where the server is located determines your operating risk (see 7.4); please assess it yourself before choosing.
+> **Practical Tip (pitfall warning)**: ① A cloud provider's "pay-per-traffic" plan may generate a large bill when hit by a flood of malicious traffic -- setting traffic alerts and quotas is recommended; ② the legal environment where the server is located determines your operating risk (see 7.4); please assess it yourself before choosing.
 
 ### Step Two: Define the Parameter Library
 
@@ -1098,7 +1100,7 @@ YAML (YAML Ain't Markup Language)
 - Implement Phase Three forwarding (confirmation-tag exchange, without holding the session key)
 - Implement Phase Four forwarding (encrypted data packets, no decryption)
 
-> 💡 **Practical Tip**: When implementing, self-check item by item against the verification checklist in Appendix C. The three most easily overlooked points: ① the silent-discard path must not write logs; ② secure destruction of the temporary private key; ③ clearing of waiting-pool entries after the 30-second timeout (missing this causes memory to be maliciously filled up -- this is a DoS entry point).
+> **Practical Tip**: When implementing, self-check item by item against the verification checklist in Appendix C. The three most easily overlooked points: ① the silent-discard path must not write logs; ② secure destruction of the temporary private key; ③ clearing of waiting-pool entries after the 30-second timeout (missing this causes memory to be maliciously filled up -- this is a DoS entry point).
 
 ## 7.3 Security Best Practices
 
@@ -1157,7 +1159,7 @@ Rate Limiting
 
 5. **Transparent operation**: publish the server's parameter configuration, TCA whitelist, and privacy policy (even if the policy is "we record nothing")
 
-> ⚠️ **Common Misconception**: security ≠ concealment. Some operators think "not publishing the configuration = more secure", but ZT-DSP parameters are supposed to be public in the first place (the open-protocol principle); concealment only prevents users from verifying whether your server's words and actions match. Security comes from "parameters that are hard to brute-force + cryptography that cannot be broken", not from "keeping the configuration secret".
+> **Common Misconception**: security ≠ concealment. Some operators think "not publishing the configuration = more secure", but ZT-DSP parameters are supposed to be public in the first place (the open-protocol principle); concealment only prevents users from verifying whether your server's words and actions match. Security comes from "parameters that are hard to brute-force + cryptography that cannot be broken", not from "keeping the configuration secret".
 
 ## 7.4 Ethical Declaration
 
@@ -1184,7 +1186,7 @@ A server builder does not participate in the communication content, but decides 
 
 The flow is: ① Before going out, obtain the other party's door number H(Token_B) through an out-of-band channel -> ② At the hotel, show the front desk your own door number H(Token_A) and the other party's door number H(Token_B) -> ③ The front desk checks the match and sends you into the same room.
 
-> ⚠️ **Common Misconception**: "without a door number you cannot get in the door" ≠ a flawed protocol. Picture this scenario: this is like "without an address you cannot send a letter" -- it is not a problem with the post office, but an essential requirement of communication. ZT-DSP explicitly does not do "stranger discovery" (Q4); this is a feature, not a bug. (The above is a scenario, not a technical description)
+> **Common Misconception**: "without a door number you cannot get in the door" ≠ a flawed protocol. Picture this scenario: this is like "without an address you cannot send a letter" -- it is not a problem with the post office, but an essential requirement of communication. ZT-DSP explicitly does not do "stranger discovery" (Q4); this is a feature, not a bug. (The above is a scenario, not a technical description)
 
 ## Q2: Then where does my door number come from? What exactly does the TCA do?
 
@@ -1192,7 +1194,7 @@ The flow is: ① Before going out, obtain the other party's door number H(Token_
 
 - TCA = identity factory: after verifying your device, it issues a token (containing a random seed + Ed25519 signature)
 - Door number = the hash of the ID card: you make a copy of the ID card (SHA-3-256) to obtain the door number, which is used to find people in the hotel
-- Token storage: your original ID card (token) is securely kept in the device's TPM/HWID, non-exportable and non-copyable
+- Token storage: by protocol design your original ID card (token) should be securely kept in the device's TPM/HWID, non-exportable and non-copyable (**no hardware storage is implemented in 1.0.0**)
 
 Key point: one device can hold multiple ID cards issued by multiple TCAs (multiple tokens); a TCA is only responsible for "does this person have a legitimate ID card", not for "whom this person wants to find"; finding people is your own business.
 
@@ -1204,7 +1206,7 @@ Anyone can build their own TCA and issue tokens for a small circle. A TCA's auth
 
 If no TCA existed, anarchic clients would destroy the entire protocol ecosystem: anyone could generate identities infinitely, launch spam connections and DDoS attacks, and public-interest servers would collapse within hours. **The existence of the TCA is reasonable control of users while maintaining anonymity.** You do not need to cling to one TCA authority.
 
-> ⚠️ **Common Misconception**: TCA ≠ central server. The TCA only does "issuing + revocation"; it does not participate in communication, does not hold keys, and is not on the data transmission path. Picture this scenario: comparing it to a "passport-issuing country" is more accurate -- the passport country knows you have a passport, but does not know where you took the passport or whom you met. (The above is a scenario, not a technical description)
+> **Common Misconception**: TCA ≠ central server. The TCA only does "issuing + revocation"; it does not participate in communication, does not hold keys, and is not on the data transmission path. Picture this scenario: comparing it to a "passport-issuing country" is more accurate -- the passport country knows you have a passport, but does not know where you took the passport or whom you met. (The above is a scenario, not a technical description)
 
 ## Q4: If my friend and I have never met and cannot exchange door numbers out-of-band, can we still use ZT-DSP?
 
@@ -1220,7 +1222,7 @@ Alternatives: forward the door number through a trusted intermediary (a mutual f
 
 The server knows "there are devices communicating in this room", but not "which sub-channel they are in, or what they said".
 
-> 🔗 **Related Knowledge**: This embodies the "minimum information" design -- the server gets only the minimum information needed for routing (the room number), cannot get the content (encrypted), and cannot get the substructure (sub-channels). This echoes the metadata discussion in Section 5.1.
+> **Related Knowledge**: This embodies the "minimum information" design -- the server gets only the minimum information needed for routing (the room number), cannot get the content (encrypted), and cannot get the substructure (sub-channels). This echoes the metadata discussion in Section 5.1.
 
 ## Q6: Wanting both anonymity and a TCA to "manage" -- are these two contradictory?
 
@@ -1234,7 +1236,7 @@ The server knows "there are devices communicating in this room", but not "which 
 
 The TCA exists to prevent anarchic abuse. With a TCA, the server can filter out "guests without a legitimate ID card" through a whitelist, protecting public-interest resources. But you can always choose: use multiple TCAs and do not lock yourself to a single authority; use P2P mode and bypass TCAs and servers entirely.
 
-> ⚠️ **Common Misconception**: "anonymity" ≠ "no one knows any information about you". ZT-DSP's anonymity is **layered anonymity**: each layer knows only the minimum information needed to perform its function (see the table above). Absolute, unconditional anonymity does not exist in the real world (see 5.5).
+> **Common Misconception**: "anonymity" ≠ "no one knows any information about you". ZT-DSP's anonymity is **layered anonymity**: each layer knows only the minimum information needed to perform its function (see the table above). Absolute, unconditional anonymity does not exist in the real world (see 5.5).
 
 ## Q7: What is a virtual room?
 
@@ -1248,7 +1250,7 @@ In this process, the server maintains a room placeholder for this pair of device
 
 Key features: content is not saved (all data flows only in memory; the server neither records, caches, nor writes to disk); mutual non-interference (room-level continuous locking and sub-channel-level continuous locking run independently); burn-after-use (sub-channels can be dynamically created and destroyed, and keys are immediately discarded after closing).
 
-> 💡 **Practical Interpretation**: "burn-after-use" (immediate key discard) is the core mechanism of the sub-channel design -- once the session ends, the key is void, leaving not even room for "decrypting history". This is precisely the embodiment of the "data minimization" principle at the session layer.
+> **Practical Interpretation**: "burn-after-use" (immediate key discard) is the core mechanism of the sub-channel design -- once the session ends, the key is void, leaving not even room for "decrypting history". This is precisely the embodiment of the "data minimization" principle at the session layer.
 
 ## Q9: How is channel hopping implemented? What does "next pre-key" mean?
 
@@ -1256,7 +1258,7 @@ Key features: content is not saved (all data flows only in memory; the server ne
 
 This is continuous locking: even if an attacker intercepts the Nth packet, they cannot decrypt the N+1th packet (the key has changed); the two parties keep "hopping channels" through pre-keys, forming a forward-secure chain; the virtual room ensures this hopping process cannot be interrupted by external connections; sub-channels allow multiple independent forward-secure chains to exist in parallel within the same room.
 
-> 🏠 **Everyday Analogy**: Picture this scenario: continuous locking is like "changing to a new password in every exchange" -- the last character of the previous sentence tells you the password for the next one. Even if an eavesdropper records the entire conversation, without the ability to derive the "next sentence's password", they can only hear a mass of encrypted noise.
+> **Everyday Analogy**: Picture this scenario: continuous locking is like "changing to a new password in every exchange" -- the last character of the previous sentence tells you the password for the next one. Even if an eavesdropper records the entire conversation, without the ability to derive the "next sentence's password", they can only hear a mass of encrypted noise.
 > (The above is a scenario, not a technical description)
 
 ## Q10: Why is there no 32KB hash exchange?
@@ -1265,7 +1267,7 @@ This is continuous locking: even if an attacker intercepts the Nth packet, they 
 
 More importantly, the 32KB exchange brings problems such as traffic correlation (a strong fingerprint, which can be used to identify a ZT-DSP handshake), DoS amplification (a forged handshake request forces the server to forward a huge amount of hash data), and excessive latency (close to the performance limit on a 200ms-latency network). The protocol therefore omits any redundant collision phase and derives keys directly (X25519 + HKDF).
 
-> ⚠️ **Common Misconception**: "exchanging hashes for verification" sounds more secure (one extra check), but is in fact **redundant and harmful**: what both parties derive is the result of the same deterministic function, so verifying it amounts to "verifying yourself with yourself"; and the 32KB traffic signature instead gives attackers a chance to identify the protocol. Security design is not "the more checks the better", but "every step has independent value".
+> **Common Misconception**: "exchanging hashes for verification" sounds more secure (one extra check), but is in fact **redundant and harmful**: what both parties derive is the result of the same deterministic function, so verifying it amounts to "verifying yourself with yourself"; and the 32KB traffic signature instead gives attackers a chance to identify the protocol. Security design is not "the more checks the better", but "every step has independent value".
 
 ## Q11: Is emergency mode still there?
 
@@ -1277,7 +1279,7 @@ More importantly, the 32KB exchange brings problems such as traffic correlation 
 
 But note: **the client and the server must use the same parameters to communicate.** If the server declares "I only accept 128 64-bit random numbers per second" while your client sends "1024 16-bit random numbers per second", the server will directly silently discard your packet, with no error message at all. This is the role of the "library": the server declares its parameter dialect in its library, and the client must fetch the library and match its parameters.
 
-> 💡 **Practical Tip (security reminder)**: Parameters can be changed, but **weakening security parameters is not recommended**: a random number length below 128 bits or the use of known weak algorithms (such as MD5, SHA-1, DES) will significantly reduce security. The protocol allows free modification to "adapt to scenarios" (e.g. low-power devices using shorter random numbers), not to "cut corners".
+> **Practical Tip (security reminder)**: Parameters can be changed, but **weakening security parameters is not recommended**: a random number length below 128 bits or the use of known weak algorithms (such as MD5, SHA-1, DES) will significantly reduce security. The protocol allows free modification to "adapt to scenarios" (e.g. low-power devices using shorter random numbers), not to "cut corners".
 
 ## Q13: What is "silent drop"? Why does it not return an error when parameters do not match?
 
@@ -1285,7 +1287,7 @@ But note: **the client and the server must use the same parameters to communicat
 
 Silent drop eliminates this information leak. Whatever the attacker sends, the server behaves like a "closed port" -- with no response at all. This makes large-scale protocol probing extremely difficult.
 
-> ⚠️ **Common Misconception**: silent drop means "no error reported" when you troubleshoot, but this does not mean the protocol is poorly designed -- it is a **deliberate** stealth mechanism. When debugging, check the parameters item by item against the library file (length/rate/window/algorithm), or temporarily enable debug mode in a test environment (be sure to turn it off in production).
+> **Common Misconception**: silent drop means "no error reported" when you troubleshoot, but this does not mean the protocol is poorly designed -- it is a **deliberate** stealth mechanism. When debugging, check the parameters item by item against the library file (length/rate/window/algorithm), or temporarily enable debug mode in a test environment (be sure to turn it off in production).
 
 ## Q14: Can I use ZT-DSP to do illegal things? Will the protocol assist me?
 
@@ -1293,7 +1295,7 @@ Silent drop eliminates this information leak. Whatever the attacker sends, the s
 
 **A protocol cannot distinguish between legitimate and illegitimate uses. Responsibility for the user's behavior rests with the user, not with the protocol designer or implementer.** At the same time, note: technical anonymity is not legal anonymity, and cryptographic security is not operational security (OPSEC). In extreme scenarios, the reliable approach is not to transmit over any channel at all.
 
-> ⚠️ **Common Misconception**: encrypted communication ≠ legal exemption. Different countries have different rules on encrypted communication and anonymous networks (some require "lawful interception" capability and prohibit unlicensed encryption); "technically unbreakable" does not mean "legally unaccountable" -- your devices, the people you meet, and your behavioral patterns can all become law-enforcement evidence. Before using any encryption tool, understand and comply with local law.
+> **Common Misconception**: encrypted communication ≠ legal exemption. Different countries have different rules on encrypted communication and anonymous networks (some require "lawful interception" capability and prohibit unlicensed encryption); "technically unbreakable" does not mean "legally unaccountable" -- your devices, the people you meet, and your behavioral patterns can all become law-enforcement evidence. Before using any encryption tool, understand and comply with local law.
 
 ## Q15: The official client was audited and found to have so many BUGs -- is ZT-DSP still secure?
 
@@ -1303,7 +1305,7 @@ The first half -- "is it still secure": the **protocol** and the **implementatio
 
 The second half -- "what can be learned": the audit method (multi-path cross-validation, live-fire reproduction on a target machine) and the regression discipline for five categories of typical vulnerabilities (phenomenon -> root cause -> fix -> lesson) are built directly into this specification as hardening clauses, see the verification checklist in Appendix C and the engineering-audit terminology in Appendix A.3. **Reading the protocol specification tells you "how it should be"; reading Appendix C and A.3 tells you "how it actually goes wrong" -- neither can be dispensed with.**
 
-> 💡 **Practical Tip**: Before writing an implementation, use the verification checklist in Appendix C together with the engineering and audit terminology in Appendix A.3 -- the C checklist tells you "what to do", and A.3 tells you "which pitfalls to avoid".
+> **Practical Tip**: Before writing an implementation, use the verification checklist in Appendix C together with the engineering and audit terminology in Appendix A.3 -- the C checklist tells you "what to do", and A.3 tells you "which pitfalls to avoid".
 
 ---
 
@@ -1314,7 +1316,7 @@ The second half -- "what can be learned": the audit method (multi-path cross-val
 > - **A.1 Core Protocol Terminology**: terms actually used in this protocol specification (78)
 > - **A.3 Supplementary Terminology**: two parts -- ① supplementary protocol terms already used in the main text but not previously included (transcript, heartbeat, ratchet, etc.); ② engineering and security-audit terminology (fail-closed, race condition, file descriptor, fuzzing, etc., 24), to be read alongside security-audit practice
 >
-> **[How to Use]** Every first occurrence of a term in the main text has a pointer (e.g. "for the full annotation see Appendix A"). You can also look terms up directly in alphabetical order. Each term uniformly contains three layers: **Meaning** (what it is), **Principle** (how it works), and **Starting point** (why it exists); some terms are accompanied by an **Analogy** (an everyday example) or a **⚠️ Common Misconception**.
+> **[How to Use]** Every first occurrence of a term in the main text has a pointer (e.g. "for the full annotation see Appendix A"). You can also look terms up directly in alphabetical order. Each term uniformly contains three layers: **Meaning** (what it is), **Principle** (how it works), and **Starting point** (why it exists); some terms are accompanied by an **Analogy** (an everyday example) or a **Common Misconception**.
 
 ## A.1 Core Protocol Terminology
 
@@ -1925,7 +1927,7 @@ Big-Endian (Byte Order)
 Length Prefix
 ├── Meaning: writing a field stating "how long the data is" (such as 4 bytes) before the actual data; the receiver reads the length first, then the data
 ├── Principle: TCP is a byte stream with no "message boundaries"; the length prefix is the most reliable framing method — first read the fixed-length length field, then read exactly the payload of the declared length
-└── Rationale: every frame in Appendix F is framed by a length prefix; ⚠️ Pitfall: the length field is peer-controlled input, so an upper bound must be validated first (see A.3.2 Memory Exhaustion)
+└── Rationale: every frame in Appendix F is framed by a length prefix; Pitfall: the length field is peer-controlled input, so an upper bound must be validated first (see A.3.2 Memory Exhaustion)
 ```
 
 ```plain
@@ -2034,7 +2036,7 @@ Argon2id / scrypt / Password Hashing
 Fuzzing
 ├── Meaning: an automated testing method that bombards a program interface with large amounts of randomly/semi-randomly constructed malformed input to see whether it crashes, leaks, or hangs
 ├── Principle: machines can generate thousands of malformed combinations per second that humans would not think of; every crash point corresponds to a missing input validation
-└── Rationale: the first health check of a protocol implementation (f1~f10 cover the length header/JSON/public key/timing); ⚠️ Pitfall: test functions must actually be collected by the test framework (the "tested illusion" of P1-9)
+└── Rationale: the first health check of a protocol implementation (f1~f10 cover the length header/JSON/public key/timing); Pitfall: test functions must actually be collected by the test framework (the "tested illusion" of P1-9)
 ```
 
 ```plain
@@ -2048,7 +2050,7 @@ Static Taint Analysis
 PoC (Proof of Concept)
 ├── Meaning: the minimal runnable code that proves a vulnerability really exists — only for "showing it to yourself" forensics, not for destruction
 ├── Principle: words are not proof; a PoC turns a vulnerability into a reproducible, measurable, regressable experiment (target machines V1~V5 each come with forensic data)
-└── Rationale: the anchor of the security fix process — a fixed version counts as fixed only if it "cannot be pierced" by historical PoCs (regression discipline); ⚠️ Ethical boundary: a PoC should only be run on machines you own/are authorized for (the 127.0.0.1 target machine)
+└── Rationale: the anchor of the security fix process — a fixed version counts as fixed only if it "cannot be pierced" by historical PoCs (regression discipline); Ethical boundary: a PoC should only be run on machines you own/are authorized for (the 127.0.0.1 target machine)
 ```
 
 ```plain
@@ -2069,7 +2071,7 @@ BOM and Character Encoding (Byte Order Mark / UTF-8 / GBK)
 Hook / Extension Mounting
 ├── Meaning: the "slots" reserved by the protocol implementation — external modules (TCA verification, random enhancement, carrier encapsulation) are called at fixed mounting points, and can validate, abort, or rewrite data
 ├── Principle: the core protocol keeps a minimal set, and extension capabilities are injected through mounting points; a mounting point declares three things — whether it can rewrite data (replace_data), how the contract is re-verified after rewriting, and whether it can abort (abort) and the path after aborting
-└── Rationale: makes external modules such as TCA and carrier encapsulation portable and pluggable; ⚠️ Common misconception: hooks are a **local behavior** and do not participate in on-wire interoperability — two implementations with different hook sets can still interoperate under the same protocol parameters (see Appendix A.3 for the related engineering terms)
+└── Rationale: makes external modules such as TCA and carrier encapsulation portable and pluggable; Common misconception: hooks are a **local behavior** and do not participate in on-wire interoperability — two implementations with different hook sets can still interoperate under the same protocol parameters (see Appendix A.3 for the related engineering terms)
 ```
 
 ---
@@ -2091,7 +2093,7 @@ Hook / Extension Mounting
 | Key Exchange | X25519 ECDH | Provides Forward Secrecy |
 | Key Derivation | HKDF-SHA-3-256 | Standardized extract-expand; session_salt is the salt parameter (RFC 5869) |
 | Token Signature | Ed25519 | High-performance elliptic curve (implemented by the TCA module, verified by the core client through a hook) |
-| Device-Specific Key PSK | 32 bytes (256 bits) true random | At the protocol level, storage in TPM/HWID (physical binding) is recommended; the official client accepts 64-character hex/Base64 and rejects weak keys and public default values |
+| Device-Specific Key PSK | 32 bytes (256 bits) true random | At the protocol level, storage in TPM/HWID (physical binding) is recommended; **the 1.0.0 official clients do not implement TPM/HWID storage -- planned for a later version**; the official client accepts 64-character hex/Base64 and rejects weak keys and public default values |
 | Default Port | 37291 | Official client default (changeable with `--port`) |
 | Handshake Timeout | 15 seconds | Total time limit for each of Phases 1-3 |
 | Data-Phase Timeout | 60 seconds | Socket timeout after handshake completion (prevents silent disconnection at the 15-second handshake timeout) |
@@ -2176,7 +2178,7 @@ Before releasing your ZT-DSP implementation, confirm the following:
 Before using ZT-DSP, confirm the following:
 
 - [ ] Understanding Out-of-Band Exchange: you have obtained the peer's house number through a secure channel (1.3/3.4)
-- [ ] Understanding PSK protection: your PSK is stored in the TPM/HWID and cannot be exported (4.1.4)
+- [ ] Understanding PSK protection: the protocol requires your PSK to be stored in the TPM/HWID and to be non-exportable (4.1.4); **the 1.0.0 official clients do not implement this binding -- use `--psk-file` with 0600 permissions as the substitute**
 - [ ] Understanding TCA selection: the TCA you trust is community-recognized, not a mandatory authority (4.1.2)
 - [ ] Understanding parameter matching: your client parameters are consistent with the target server's library declaration (Appendix B)
 - [ ] Understanding risk: you understand your own threat model and the protocol's limitations (Volume 5)
@@ -2185,6 +2187,14 @@ Before using ZT-DSP, confirm the following:
 
 | Version | Date | Status | Notes |
 |------|------|------|----------|
+### D.1 Version Support Matrix (TPM and HWID)
+
+> **This table must be updated on every release**, marking for each version whether writing, reading or modifying the TPM and the HWID is supported.
+
+| Version | Release date | Write TPM | Write HWID | Read/modify TPM | Read/modify HWID | Notes |
+|---|---|---|---|---|---|---|
+| 1.0.0 | 2026-10-11 | Not supported | Not supported | Not supported | Not supported | The official clients `zt_dsp_py` / `zt_dsp_rs` contain no TPM/HWID code; the PSK and the token are supplied as ordinary configuration. **Planned for a later version**, and this table must be updated accordingly |
+
 | 1.0.0 | 2026-10-11 | **Published** | **First published version (the normative baseline of this document)**: includes the file-level guide and fully annotated terminology, the MK/EK derivation and four-phase on-wire format aligned item by item with the official implementations, the byte-by-byte and state-machine appendices F/G/H, the engineering and security-audit terminology in Appendix A.3, and Appendix E, the usage guide for the official clients (Python and Rust). The protocol specification is governed by this version. |
 
 ---
@@ -2203,7 +2213,7 @@ Before using ZT-DSP, confirm the following:
 | Package install | `cd zt_dsp_py && pip install .`, after which the `zt-dsp-py` command is available | General users |
 | Windows single file | Package it yourself: `cd zt_dsp_py && pyinstaller --onefile --name zt_dsp_py zt_dsp_py/__main__.py` (**no exe is shipped in this repository**; attach one to a Release when publishing) | Users who do not want to touch Python |
 
-> 💡 All three methods behave identically, and all offer two startup modes: an **interactive wizard** (run directly with no arguments) and **direct command-line connection** (with arguments such as `--role`). ⚠️ When stdin or stdout is redirected (pipe, CI, IDE runner), starting with no arguments does **not** enter the wizard; it prints usage and exits with status 0, so automation never blocks at a prompt.
+> All three methods behave identically, and all offer two startup modes: an **interactive wizard** (run directly with no arguments) and **direct command-line connection** (with arguments such as `--role`). When stdin or stdout is redirected (pipe, CI, IDE runner), starting with no arguments does **not** enter the wizard; it prints usage and exits with status 0, so automation never blocks at a prompt.
 
 ## E.2 Two Startup Modes
 
@@ -2231,7 +2241,7 @@ export ZT_DSP_PSK=<64-digit hex>     # Linux/macOS
 zt-dsp-py --role listen --port 37291 --psk-env
 ```
 
-> ⚠️ **Common misconception**: the two sides must choose **different** roles — one listen, the other connect. If both choose connect, nobody is listening and the connection will inevitably fail; if both choose listen, they wait for each other and can never connect.
+> **Common misconception**: the two sides must choose **different** roles — one listen, the other connect. If both choose connect, nobody is listening and the connection will inevitably fail; if both choose listen, they wait for each other and can never connect.
 
 ## E.3 CLI Parameter Quick Reference
 
@@ -2258,9 +2268,9 @@ zt-dsp-py --role listen --port 37291 --psk-env
 
 | Priority | Method | Description |
 |--------|------|------|
-| 🥇 Recommended | `--psk-file` | Set file permissions to 0600 (read/write by the owner only); the client proactively warns "file is accessible to group/other users" |
-| 🥈 Second choice | `--psk-env` | Environment variable `ZT_DSP_PSK`; does not enter the command-line history or the process list |
-| 🥉 Last resort | `--psk` | Written directly on the command line, **visible to anyone who can see the process list**, for temporary testing only |
+| Recommended | `--psk-file` | Set file permissions to 0600 (read/write by the owner only); the client proactively warns "file is accessible to group/other users" |
+| Second choice | `--psk-env` | Environment variable `ZT_DSP_PSK`; does not enter the command-line history or the process list |
+| Last resort | `--psk` | Written directly on the command line, **visible to anyone who can see the process list**, for temporary testing only |
 
 Format requirement: the PSK must be **exactly 32 bytes (256 bits)** of random data, encoded as **64-character hex** or **standard Base64**. The client rejects: public default values (such as `zt-dsp-default-psk-***`) and weak keys with too low entropy (too many repeated characters).
 
@@ -2283,7 +2293,7 @@ zt-dsp-py --role connect --host 127.0.0.1 --port 37291 --psk-file psk.txt
 # → you see "[+] Handshake complete, secure channel established." and you can exchange messages
 ```
 
-> 💡 **Hands-on observation points**:
+> **Hands-on observation points**:
 > - Terminal 1 will display "connection from ('127.0.0.1', port)" — this is the "check-in registration" from the server's perspective (4.2.1)
 > - Type a message and press Enter to send; `/quit` or `Ctrl+C` to exit
 > - Change Terminal 2's PSK file to a different value and connect again: Terminal 1 will **Silent Drop** (it only prints diagnostics to the local stderr and returns no error to the peer) — this is the Silent Drop of 4.3
@@ -2342,7 +2352,7 @@ cargo build --release     # output: target/release/zt-dsp-rs (zt-dsp-rs.exe on W
 cargo test --release      # 63 passed
 ```
 
-> ⚠️ **Known trap**: if the working-directory path contains **non-ASCII characters** (a Chinese path, for example), Cargo fails to build. Point the target directory at a pure ASCII path:
+> **Known trap**: if the working-directory path contains **non-ASCII characters** (a Chinese path, for example), Cargo fails to build. Point the target directory at a pure ASCII path:
 > ```powershell
 > $env:CARGO_TARGET_DIR = "C:\rs-target"
 > cargo build --release
@@ -2529,7 +2539,7 @@ tag_resp = HMAC-SHA3-256(MK, "ZT-DSP-CONFIRM-RESP-v3" ‖ transcript)
 3. The responder sends the `tag_resp` frame (note: at this point it has **not yet** verified the peer's tag content)
 4. Each side checks the peer's tag using **constant-time comparison**; if either side does not match → erase all key material → handshake failure (both the initiator and the responder report ZTDSPSecurityError)
 
-> ⚠️ **Common misconception**: "the responder sends its own tag only after verification passes" is an old statement from an early draft and does not match the official implementation. The responder "sends first, compares after". This is not a security hole: the tags are each side's own HMAC, and an attacker cannot impersonate either side by "sending a correct tag first" — it has no MK and cannot compute either side's correct tag; whichever side compares wrong immediately erases the keys and terminates.
+> **Common misconception**: "the responder sends its own tag only after verification passes" is an old statement from an early draft and does not match the official implementation. The responder "sends first, compares after". This is not a security hole: the tags are each side's own HMAC, and an attacker cannot impersonate either side by "sending a correct tag first" — it has no MK and cannot compute either side's correct tag; whichever side compares wrong immediately erases the keys and terminates.
 
 **Binding meaning**: the transcript covers the **raw bytes** of both sides' Phase One frames — the parameter JSON, the identity declaration, and the access nonce are all included. Any substitution of the identity declaration or parameters by a man-in-the-middle, and any "canonical re-encoding" in either implementation, will make the transcript differ and the tags necessarily wrong. Legitimate modifications to parameters/identity by the TCA extension layer also cause no false failure, because "what is changed is the raw frame that both sides can see" (both sides bind the same byte sequence).
 
@@ -2767,7 +2777,7 @@ The implementation must build in the following hard upper bounds; **all upper-bo
                   [ESTABLISHED] (same as the initiator; identical behavior in the data phase)
 ```
 
-> 🔑 **Three asymmetry points between the two state machines**: (1) in Phase One the initiator sends first, and the responder replies only after validating; (2) in Phase Two the responder "computes DH first, then replies" (the precondition for low-order-point silence); (3) silent drop constrains only the responder — when the initiator fails it disconnects proactively (F.2).
+> **Three asymmetry points between the two state machines**: (1) in Phase One the initiator sends first, and the responder replies only after validating; (2) in Phase Two the responder "computes DH first, then replies" (the precondition for low-order-point silence); (3) silent drop constrains only the responder — when the initiator fails it disconnects proactively (F.2).
 
 ## H.3 Full Timer Table
 
@@ -2782,7 +2792,7 @@ The implementation must build in the following hard upper bounds; **all upper-bo
 | Waiting-pool timeout (server side) | 30s | Entering the waiting pool | Successful pairing or timeout | The registry entry is cleared to prevent memory occupation |
 | Timestamp window | 30s (configurable per peer) | — | — | Not a timer but a verification threshold; for out-of-window packet handling see F.5 step 8 |
 
-> ⚠️ **Common misconception**: the key to Slowloris protection is not "the number 15 seconds" but **how the deadline is shared**. If every `recv` enjoys its own independent 15-second timeout, an attacker dragging out a single frame can stretch reading the 4-byte length field to 60 seconds; with a shared deadline, no matter how the peer dribbles, the whole frame budget is only 15 seconds.
+> **Common misconception**: the key to Slowloris protection is not "the number 15 seconds" but **how the deadline is shared**. If every `recv` enjoys its own independent 15-second timeout, an attacker dragging out a single frame can stretch reading the 4-byte length field to 60 seconds; with a shared deadline, no matter how the peer dribbles, the whole frame budget is only 15 seconds.
 
 ## H.4 Error Handling Matrix (Phase × Failure → Behavior of Both Sides)
 
