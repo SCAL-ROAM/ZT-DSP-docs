@@ -2,7 +2,7 @@
 
 > The specification for the current protocol. The authoritative text is `en/spec/ZT-DSP_1.0.0_Master_Guide.md` (docs version 1.0.0).
 >
-> **How this repository relates to the code repository**: the specification defines the protocol behaviour and tunable parameters of the code side; the code side declares at its entry point that it follows the *ZT-DSP Protocol Master Guide*. The two are not bound by version numbers.
+> **How this repository relates to the implementations**: the specification defines the protocol behaviour and tunable parameters; each implementation declares at its entry point which guide it applies to, and each guide lists the client and server versions it applies to. The relation is **many-to-many**, not bound by version numbers.
 
 This repository carries **documentation only**; the official implementations and runtime code live in the separate `ZT-DSP-client` repository.
 
@@ -27,11 +27,11 @@ ZT-DSP-docs/
 
 ## spec/ — the specification
 
-The current revision is **docs 1.0.0**, and it is the **only** specification file this repository carries.
+The current revision is **docs 1.0.0**, and it is the **only** specification file this repository carries. It applies to the client versions `ZT-DSP_PY-1.0.0` / `ZT-DSP_RS-1.0.0` and to the server version `ZT-DSP_SV-1.0.0` (placeholder).
 
 | File | Content |
 |------|---------|
-| `cn/spec/ZT-DSP_1.0.0_总指导.md` | **Protocol Master Guide** (Chinese side). Book Four core protocol, Appendix A terminology, Appendix B parameters, Appendix C implementation checklist, Appendix D revision notes, Appendix E client usage guide, Appendix F byte-level on-wire specification, Appendix G traffic-defence details, Appendix H state machine and timeout matrix. |
+| `cn/spec/ZT-DSP_1.0.0_总指导.md` | **Protocol Master Guide** (Chinese side). Book Four core protocol, Appendix B parameters, Appendix C implementation checklist, Appendix F byte-level on-wire specification, Appendix G traffic-defence details, Appendix H state machine and timeout matrix. |
 | `en/spec/ZT-DSP_1.0.0_Master_Guide.md` | The same, on the English side. |
 
 ## Bilingual mirroring
@@ -45,15 +45,18 @@ The current revision is **docs 1.0.0**, and it is the **only** specification fil
 | `cn/术语对照表.md` | Chinese-to-English terminology baseline |
 | `en/Glossary.md` | English-to-Chinese terminology baseline |
 
-The Guide's Appendix A and these two files together define terminology authoritatively.
+These two files are the single authoritative source of terminology.
 
 ## Versions
 
-The project has **two version numbers** and one **two-way declaration** between documents and code:
+The project has **three kinds of version number** and one **two-way declaration** between documents and implementations:
 
-- **docs version (1.0.0)** — the revision number of this documentation repository, written `docs 1.0.0`. It never appears on the wire.
-- **code version (1.0.0)** — the implementation and protocol-behaviour version of the code repository, written `code 1.0.0`. A concrete implementation is named by its implementation identifier, `ZT-DSP_<language prefix>-<major.minor.patch>` — `ZT-DSP_PY-1.0.0` for Python, `ZT-DSP_RS-1.0.0` for Rust. Implementations in different languages may share a version number and are distinguished by the prefix.
-- **Two-way declaration** — the document side (the head of `spec/`) declares which code settings it governs; the code side (`FOLLOWS_DOC` in `zt_dsp_py/version.py`) declares which document it follows. **The two are not bound by version numbers.**
+- **total-guide version (1.0.0)** — the revision number of this documentation repository, written `docs 1.0.0`. It never appears on the wire.
+- **client version** — the full identifier of a client implementation, `ZT-DSP_<language prefix>-<major.minor.patch>` — `ZT-DSP_PY-1.0.0` for Python, `ZT-DSP_RS-1.0.0` for Rust. Implementations in different languages may share a version number and are distinguished by the prefix.
+- **server version** — the full identifier of a server implementation, `ZT-DSP_SV-1.0.0` (repository `ZT-DSP-server`, placeholder, not implemented yet). `SV` is a role prefix, not a language prefix.
+- **Two-way declaration** — the document side (the head of `spec/`) lists **the client and server versions to which it applies** and declares which settings it governs; the implementation side (`FOLLOWS_DOC` and `APPLIES_TO_DOC_VERSIONS` in `zt_dsp_py/version.py`) declares which document it applies to. **The two are not bound by version numbers.**
+
+**Applicability is many-to-many, not one-to-one**: several implementations of the same kind whose protocol behaviour has not changed share one applicability declaration, and the same guide may apply to several client and server versions at once. **Identical version numbers do not mean the same implementation and do not constitute a compatibility claim.**
 
 **No version string travels in the handshake frames**: neither the phase-one parameter JSON nor the phase-four AAD carries a version or protocol identifier. Whether the peer follows the same document is settled by the phase-three confirmation tag.
 

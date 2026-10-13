@@ -14,3 +14,12 @@ markdown: kramdown
 exclude:
   - .github/
   - SECURITY.md
+  - CITATION.cff
+  - LICENSE
+  - LICENSE-MIT
+  - LICENSE-APACHE
+  - .gitignore
+  - .gitattributes
+  - vendor/
+  - Gemfile
+  - Gemfile.lock

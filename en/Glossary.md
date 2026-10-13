@@ -1,7 +1,7 @@
 # ZT-DSP Chinese–English Glossary (translation baseline)
 
 > Purpose: every English document and every code comment in this project must use the English wording given here, so that terminology stays consistent throughout.
-> Source: the Appendix A glossary of `spec/ZT-DSP_1.0.0_Master_Guide.md` (auto-extracted, then normalized by hand).
+> Status: this file is the **single authoritative source** of terminology and depends on no other document.
 > Entries: 108. Register new terms here before using them.
 
 | English | Chinese |

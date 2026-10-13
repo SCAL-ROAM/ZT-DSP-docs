@@ -4,7 +4,8 @@
 (Zero Trust Dynamic Synchronization Protocol)
 
 - **docs version**: 1.0.0 (the revision number of this document itself, not involved in network communication)
-- **code version**: 1.0.0 (the version of the implementation and of protocol behavior; when naming a specific implementation it is written as the implementation identifier `ZT-DSP_PY-1.0.0`, where `PY` is the language prefix)
+- **applicable client versions**: `ZT-DSP_PY-1.0.0` (Python), `ZT-DSP_RS-1.0.0` (Rust)
+- **applicable server version**: `ZT-DSP_SV-1.0.0` (repository `ZT-DSP-server`, placeholder, not implemented yet)
 - **Release date**: 2026-10-11
 - **Document status**: **Public Test Release**
 - **Content classification**: The main body of this specification is an implementation specification; sections marked [Theory] [Experimental] are ideas and do not mean they have been implemented or verified.
@@ -15,9 +16,7 @@
 > - **This document**: the *ZT-DSP Protocol Master Guide*.
 > - **Applies to**: This file specifies the protocol behavior and tunable parameters on the code side — `random_len`, `random_rate`, `window`, `time_window`, `key_len`, `hash`, `aead`, `module_flags`, `padding`, `jitter`, etc.; adjusting these settings is governed by this document.
 > - **Corresponding implementation**: the code side declares at its entry point that "this implementation follows the *ZT-DSP Protocol Master Guide*" (for the Python implementation in this repository, see `FOLLOWS_DOC` in `zt_dsp_py/version.py`).
-> - **About version numbers**: This project has only two version numbers — the **docs version** (the revision number of this document itself, 1.0.0) and the **code version** (the version of the implementation and of protocol behavior, 1.0.0). **The handshake frames carry no version string whatsoever**: neither the Phase One parameter JSON nor the Phase Four AAD contains a version or protocol identifier field. Whether the peer is compatible is reflected by the Phase Three confirmation tag check.
-
----
+> - **About version numbers**: this project has three kinds of version number — the **total-guide version** (the revision number of this document itself, 1.0.0), and the **client versions** / **server versions** (the full identifier of each implementation). The relation between them and this document is **many-to-many**, not one-to-one: several implementations of the same kind whose protocol behaviour has not changed share one applicability declaration, and the same guide may apply to several client and server versions at once. **Identical version numbers do not mean the same implementation and do not constitute a compatibility claim.** **The handshake frames carry no version string whatsoever**: neither the Phase One parameter JSON nor the Phase Four AAD contains a version or protocol identifier field. Whether the peer is compatible is reflected by the Phase Three confirmation tag check.
 
 ## Beginner's Guide (Please Read This First)
 
@@ -28,8 +27,7 @@ This document is the **master guide** to the ZT-DSP communication protocol, and 
 1. How two devices **find each other** (door-number mechanism, Volume 3, Section 4.1)
 2. How two devices **confirm each other's identity** (token mechanism, Section 4.1)
 3. How two devices **communicate in encrypted form** (four-phase handshake, Section 4.2)
-4. How a server operator **sets up a relay node** (Volume 7)
-5. How the protocol **defends itself** when attacked (Volume 5)
+4. How the protocol **defends itself** when attacked (Volume 5)
 
 ### Why does it exist (what problem does it solve)?
 
@@ -41,17 +39,17 @@ Imagine a scenario: you want to send a letter to a friend, but the postal worker
 
 | Your background | Suggested reading path |
 |----------|--------------|
-| Complete beginner | Introduction → Volume 3 (Hotel Model) → Volume 1 (Core Ideas) → Volume 8 (FAQ) → Appendix A (Terminology Notes) |
+| Complete beginner | Introduction → Volume 3 (Hotel Model) → Volume 1 (Core Ideas) → Volume 8 (FAQ) → Glossary |
 | Want to understand the principles | Volume 1 → Volume 4 (Core Protocol) → Volume 5 (Threat Model) |
-| Want to set up a server | Volume 7 + Appendix B (Parameter Configuration Reference) |
-| Want to develop an implementation | Volume 4 + Appendix F (Byte-by-Byte On-Wire Specification) + Appendix H (State Machine and Timeout Matrix) + Appendix C (Minimal Implementation Checklist) + Appendix E (Official Client Guide: Python and Rust) |
-| Want to get it up and running right away | Appendix E (installation, commands, and troubleshooting for the official Python and Rust clients `zt_dsp_py` / `zt-dsp-rs`) |
+| Want to set up a server | Appendix B (Parameter Configuration Reference) |
+| Want to develop an implementation | Volume 4 + Appendix F (Byte-by-Byte On-Wire Specification) + Appendix H (State Machine and Timeout Matrix) + Appendix C (Minimal Implementation Checklist) |
+| Want to get it up and running right away | `ZT-DSP-client` repository README (installation, commands and troubleshooting for `zt_dsp_py` / `zt-dsp-rs`) |
 
 > **Note on volume numbering**: volume numbers are fixed — each number maps to one volume of the body text, and numbers not listed have no corresponding volume.
 
-> **Reading tip**: When you hit a term you do not understand, first jump to Appendix A for the full annotation, then come back and keep reading. Every term has a [Terminology Note] pointer and a one-sentence explanation the first time it appears in the main text.
+> **Reading tip**: When you hit a term you do not understand, look it up in the Glossary, then come back and keep reading. Every term has a [Terminology Note] pointer and a one-sentence explanation the first time it appears in the main text.
 >
-> **Note for new readers**: Appendix E gives the start-up and troubleshooting path for the official clients (Python and Rust); appendices F/G/H are at the "protocol engineering blueprint" level — when writing an implementation, take Appendix F/H as authoritative (every sentence of them has been checked line by line against the official implementations), while Volume 4 is better suited to understanding and remembering; Appendix A.3 collects engineering and audit terminology; for byte-level self-checks, compare against Appendix F.
+> **Note for new readers**: appendices F/G/H are at the "protocol engineering blueprint" level — when writing an implementation, take Appendix F/H as authoritative (every sentence of them has been checked line by line against the official implementations), while Volume 4 is better suited to understanding and remembering; for byte-level self-checks, compare against Appendix F.
 
 ### Terminology Annotation Rules (learn these rules first, and reading will be much easier)
 
@@ -64,12 +62,9 @@ term (full name / original English wording)
 └── Rationale: why this thing exists, and what problem it was born to solve
 ```
 
-- **In the main text**, when a term first appears: the name + full name + a one-sentence explanation are given, with a note "see Appendix A for the full annotation"
-- **Appendix A**: complete tree annotations for all terms (Meaning / Principle / Motivation / Analogy / Common Misconceptions)
+- **In the main text**, when a term first appears: the name + full name + a one-sentence explanation are given, with a note "see the Glossary"
 - Complex concepts are supplemented with **everyday analogies**; easily misunderstood concepts are flagged **Common Misconceptions**
 - Content involving network communication, user data, or identity verification carries dedicated [Privacy Risk] [Protection Advice] [Compliance Note] annotations
-
----
 
 ## [Important Statement]
 
@@ -87,12 +82,9 @@ This document is aimed at three kinds of readers:
 
 **1.0.0 is the first published version of this guide.** **The technical content of this document is itself the normative baseline** — protocol behaviour is governed by the main text, Appendix F (byte-by-byte on-wire specification) and Appendix H (state machine and timeout matrix).
 
----
-
 ## Table of Contents
 
 **Volume 1**: Core Ideas and Design Principles
-
 
 **Volume 3**: The Hotel Model — an intuitive metaphor for understanding ZT-DSP
 
@@ -100,28 +92,17 @@ This document is aimed at three kinds of readers:
 
 **Volume 5**: Security Boundaries and Threat Model
 
-
-**Volume 7**: Server Construction Guide
-
 **Volume 8**: FAQ and Common Misconceptions
-
-**Appendix A**: Complete Terminology Annotations (tree format)
 
 **Appendix B**: Parameter Configuration Reference
 
 **Appendix C**: Minimal Implementation Checklist
-
-**Appendix D**: Version Notes
-
-**Appendix E**: Official Client Guide (Python and Rust)
 
 **Appendix F**: Byte-by-Byte On-Wire Protocol Specification
 
 **Appendix G**: Traffic Analysis Defense Implementation Details
 
 **Appendix H**: State Machines, Timeouts, and Error Handling Matrix
-
----
 
 # Volume 1: Core Ideas and Design Principles
 
@@ -161,7 +142,7 @@ In traditional network communication, we usually assume that certain links are t
 > **Everyday analogy**: Imagine a scenario: dynamic synchronization is like "setting your watches" — two people each look at their own watch, but a shared set of rules (say, both listening to the same hourly chime) keeps their time consistent. In ZT-DSP, both sides each hold the same material (PSK, DH result, session salt) and independently compute exactly the same key with the same set of formulas — no third party is needed to "agree on it for them".
 > (The above is a scenario, not a technical description.)
 >
-> **Key term preview**: the "key" (Key) mentioned in this paragraph has a complete annotation in Appendix A. In plain terms: a key is the key to a "digital lock"; a message encrypted with it can only be unlocked by someone holding the same key.
+> **Key term preview**: the "key" (Key) mentioned in this paragraph is explained in the Glossary. In plain terms: a key is the key to a "digital lock"; a message encrypted with it can only be unlocked by someone holding the same key.
 
 ## 1.3 The Four Core Principles
 
@@ -169,7 +150,7 @@ In traditional network communication, we usually assume that certain links are t
 
 All ZT-DSP specifications are public. Anyone may read, modify, and implement their own version. There is no *mandatory* official client, no forced update, no centralized control. This openness is both the protocol's advantage and the source of its security — an attacker cannot control the whole network by breaking a single official client.
 
-> **Related knowledge**: This resembles the idea of Open Source software — public code does not mean insecure; "security rests on public review" (Kerckhoffs's principle: even if an attacker knows the entire design of the system, the system remains secure as long as the key is kept secret). Kerckhoffs's principle has a complete annotation in Appendix A.
+> **Related knowledge**: This resembles the idea of Open Source software — public code does not mean insecure; "security rests on public review" (Kerckhoffs's principle: even if an attacker knows the entire design of the system, the system remains secure as long as the key is kept secret). Kerckhoffs's principle is explained in the Glossary.
 
 > **Common misconception**: Many people think "public protocol = vulnerabilities seen by attackers = insecure". The opposite is true: a public protocol is reviewed by countless people, so vulnerabilities are found and fixed faster; a secret protocol (Security by Obscurity, achieving security by concealment) is, on the contrary, often proved riddled with holes once it is made public.
 
@@ -213,15 +194,13 @@ principle of least privilege (Principle of Least Privilege)
 
 > **Related knowledge**: The principle of least privilege is also widely applied in operating systems (e.g. running services as a non-root user on Linux), databases (read-only accounts), and cloud services (RAM roles). Once you have learned this principle, you can apply it in any technical field.
 
----
-
 # Volume 3: The Hotel Model — an intuitive metaphor for understanding ZT-DSP
 
 > **[Introduction to this volume]** This volume uses the metaphor of a "special hotel" to translate abstract cryptographic concepts into everyday life scenarios. It is **the fastest entry point for understanding the whole protocol** — readers with no background are strongly advised to read this volume first.
 >
 > **[What beginners should focus on]** Remember the role mapping table in 3.3 and the five core rules in 3.4. After reading, try to restate in your own words the duties of the "door number" and the "front desk"; if you can do that, you have grasped the skeleton of the protocol.
 >
-> **[Related knowledge]** Every concept in this volume has a corresponding technical implementation in Volume 4: door number = token hash (4.1.1), front desk = server (Volume 7), security guard = TCA (4.1.2).
+> **[Related knowledge]** Every concept in this volume has a corresponding technical implementation in Volume 4: door number = token hash (4.1.1), front desk = server, security guard = TCA (4.1.2).
 
 ## 3.1 Why use a hotel as the metaphor?
 
@@ -307,21 +286,19 @@ Hash (Hash, Hash Function)
 
 > **Common Misconception**: Hash ≠ encryption. Encryption is reversible (with the key you can restore the plaintext); hashing is irreversible (you can only verify, not restore). Storing only the hash of a password, or using a hash as encryption, are mistakes beginners commonly make.
 
----
-
 # Book Four: Core Protocol Specification (the Minimum Set That Must Be Implemented)
 
 > **Reading Guide to This Book** This book is the **core protocol** of zt-dsp-py -- any implementation claiming compatibility with ZT-DSP must support the contents of this book (the extension modules in Book Three are all optional). This book answers: where identity comes from (4.1), how two parties establish an encrypted session (4.2), and how the server stays hidden (4.3).
 >
-> **Focus for Beginners** First understand the identity system in 4.1 (the difference between a token and a room number), then walk through the four-phase flow in 4.2. Every formula block has line-by-line comments; read them by matching "Input → Compute → Output". The descriptions in this book have been checked item by item against the implementation of the official client `zt_dsp_py`  (code 1.0.0, implementation identifier `ZT-DSP_PY-1.0.0`), and you can verify them by actually running it as described in Appendix E.
+> **Focus for Beginners** First understand the identity system in 4.1 (the difference between a token and a room number), then walk through the four-phase flow in 4.2. Every formula block has line-by-line comments; read them by matching "Input → Compute → Output". The descriptions in this book have been checked item by item against the implementation of the official client `zt_dsp_py`  (client version `ZT-DSP_PY-1.0.0`), and you can verify them by running the `ZT-DSP-client` implementation as its README describes.
 >
-> **Prerequisites** the hotel model of Book Three (this book is its technical implementation); the annotations on the four concepts "hash, encryption, key exchange, digital signature" in Appendix A.
+> **Prerequisites** the hotel model of Book Three (this book is its technical implementation); the explanations of the four concepts "hash, encryption, key exchange, digital signature" in the Glossary.
 >
 > **Security Note** This book involves authentication and key material and is the book with the densest security annotations. Operations involving tokens or PSK are accompanied by **Privacy Risk**, **Protection Recommendation**, and **Compliance Note**; please do not skip them.
 
 ## 4.1 Identity and Credential System
 
-> **Version support statement (TPM and HWID)** The storage, binding and writing of the TPM (Trusted Platform Module) and HWID (Hardware Identifier) described in this section is a **design goal at the protocol level**, and the **current 1.0.0 release does not implement it**. The official clients `zt_dsp_py` and `zt_dsp_rs` **do not support writing, reading or modifying the TPM or the HWID in any way**; the PSK and the token are currently supplied as ordinary configuration values (`--psk-file` / `--psk-env` / `--psk`), and keeping them secret is the caller's responsibility -- the client provides no hardware-level protection. This capability is **planned for a later version**; only then will the "storage location / physical binding / non-exportable" statements in this section correspond to running code. See the **version support matrix in Appendix D** for the per-version TPM/HWID status; wherever TPM/HWID appears in this section, this statement governs.
+> **Version support statement (TPM and HWID)** The storage, binding and writing of the TPM (Trusted Platform Module) and HWID (Hardware Identifier) described in this section is a **design goal at the protocol level**, and the **current 1.0.0 release does not implement it**. The official clients `zt_dsp_py` and `zt_dsp_rs` **do not support writing, reading or modifying the TPM or the HWID in any way**; the PSK and the token are currently supplied as ordinary configuration values (`--psk-file` / `--psk-env` / `--psk`), and keeping them secret is the caller's responsibility -- the client provides no hardware-level protection. This capability is **planned for a later version**; only then will the "storage location / physical binding / non-exportable" statements in this section correspond to running code. wherever TPM/HWID appears in this section, this statement governs.
 
 In ZT-DSP, your identity consists of two parts:
 
@@ -489,8 +466,6 @@ One device can hold multiple tokens and connect to multiple servers:
 
 > **Related Knowledge**: This is like the "one password per website" strategy in password managers -- spreading trust across multiple independent authorities, so that the failure or betrayal of any single authority has only a local effect.
 
----
-
 ## 4.2 Four-Phase Handshake Specification (Standard Flow)
 
 Before two people begin a secret conversation, they need to first confirm each other's identity and agree on a common "secret code" -- an encryption key known only to the two of them. This process is the "handshake".
@@ -536,7 +511,7 @@ Field mapping:
 • access nonce (nonce, limit 512 bytes) → see the formula below; the peer verifies whether its length equals the declared random_len
 ```
 
-> **The true origin of the access nonce (common pitfall)**: Early drafts once said that "the access nonce is derived from the PSK, the TPM/HWID, and the TCA token", which does not match the official implementation. The official client actually does:
+> **The true origin of the access nonce (common pitfall)**: a common misreading treats the access nonce as "derived from the PSK, the TPM/HWID, and the TCA token", which does not match the official implementation. The official client actually does:
 
 ```plain
 access nonce = HKDF-SHA3-256(IKM = PSK, salt = fresh random salt(32B), info = "ZT-DSP-PHASE1-NONCE-v3", output length = random_len bits)
@@ -641,7 +616,7 @@ MK = HKDF-SHA3-256(IKM = PSK ‖ DH, salt = session_salt, info = "ZT-DSP-MK-v3",
 | 1 | `info = "ZT-DSP-MK-v3"` | **Context string**: the protocol version identifier. Prevents key confusion between different protocol versions/purposes (if two protocols derived from the same input, they would get the same key, which is dangerous) |
 | 1 | `output = 256 bits` | **Output length**: requires deriving a 256-bit key |
 
-> **Common Misconception (common pitfall)**: Early drafts wrote the formula as `MK = HKDF(PSK ‖ DH ‖ session_salt)`, which makes the three inputs look "equal and parallel". But the official implementation (the `HKDF` class of the `cryptography` library) passes `session_salt` as a **separate salt parameter** (the standard usage of RFC 5869), and the IKM is only `PSK ‖ DH`. The two derivation results are **completely different** -- a client implemented according to the early-draft formula will inevitably fail the handshake with the official client (the phase-three confirmation tags will not match). This is also a cautionary tale about "open protocol, free implementation": freedom of implementation does not mean that formula details may be changed at will; the parameters and the formula must be consistent with the library declaration.
+> **Common Misconception (common pitfall)**: a common way to write the formula is `MK = HKDF(PSK ‖ DH ‖ session_salt)`, which makes the three inputs look "equal and parallel". But the official implementation (the `HKDF` class of the `cryptography` library) passes `session_salt` as a **separate salt parameter** (the standard usage of RFC 5869), and the IKM is only `PSK ‖ DH`. The two derivation results are **completely different** -- a client implemented with the "three equal inputs" form will inevitably fail the handshake with the official client (the phase-three confirmation tags will not match). This is also a cautionary tale about "open protocol, free implementation": freedom of implementation does not mean that formula details may be changed at will; the parameters and the formula must be consistent with the library declaration.
 
 > **Practical Interpretation (triple-input formula)**: Why three inputs instead of one? Historical lessons tell us: using only the PSK (the DRNG approach) → a leak means total collapse; using only DH → impersonation cannot be prevented; using only a salt → anyone can compute it. Each of the three has its own role: **the PSK handles "who you are" (identity anchoring, as part of the IKM), DH handles "this session is unique" (forward secrecy, the other part of the IKM), and the salt handles "cannot be guessed" (as the salt parameter of HKDF)**. If any one is missing, the security model collapses.
 
@@ -707,7 +682,7 @@ EK_recv = HKDF-SHA3-256(IKM = MK ‖ anchor ‖ 0x02, info = "ZT-DSP-EK-v3", out
 | 1 | `0x01 / 0x02` | **Role byte**: `0x01` is appended to the end of the IKM for the Initiator direction, and `0x02` for the Responder direction. Role: **distinguish the keys of the send and receive directions** -- A's EK_send exactly equals B's EK_recv, and vice versa; neither side can impersonate the peer using "its own send key" |
 | 1 | `info = "ZT-DSP-EK-v3"` | **Context string**: marks the key's purpose as "encryption," distinguishing it from keys for the anchor, authentication, and other purposes |
 
-> **Common Misconception (common pitfall)**: Early drafts wrote `EK = HKDF(MK ‖ anchor, ...)` -- direction-agnostic, as if both sides shared a single EK. The official implementation actually derives **two** directional keys, distinguished by the role byte (0x01/0x02) at the end of the IKM. This is both a security design (preventing "reflection attacks": bouncing a packet the peer sent you straight back) and an interoperability detail: a client implemented per the early-draft formula will fail the handshake due to key mismatch.
+> **Common Misconception (common pitfall)**: a common way to write it is `EK = HKDF(MK ‖ anchor, ...)` -- direction-agnostic, as if both sides shared a single EK. The official implementation actually derives **two** directional keys, distinguished by the role byte (0x01/0x02) at the end of the IKM. This is both a security design (preventing "reflection attacks": bouncing a packet the peer sent you straight back) and an interoperability detail: a client implemented with the direction-agnostic EK form will fail the handshake due to key mismatch.
 
 **4. Exchange confirmation tags (anchor confirmation)**
 
@@ -882,8 +857,6 @@ If the server returned a different error code for each kind of error (e.g., "len
 
 > **Supplementary note**: This section discusses the **idea** of silent drop. The Responder-side **behavioral contract** of "strict silence" -- which failures must be silent (the full trigger table), the precise semantics of "send nothing, close nothing, suspend and swallow bytes" during silence, and why the initiator is asymmetric -- is in **Appendix F.2**; the complete matrix of failure paths at each phase is in **Appendix H.4**.
 
----
-
 # Volume Five: Security Boundaries and Threat Model
 
 > **[Reader's Guide to This Book]** This book answers a key question: **Under which attacks is ZT-DSP still secure? Under which attacks does it fail?** Understanding "security boundaries" matters more than understanding "security features" -- knowing what you cannot defend against is what prevents a false sense of security.
@@ -931,7 +904,7 @@ WireGuard (a modern VPN tunneling protocol)
 
 > [Privacy Risk] Although the server cannot decrypt the content, it **still possesses communication metadata**: the correspondence between session IDs, traffic volume and frequency, and connection duration. Under extreme surveillance, metadata suffices to paint a social graph of "who communicates with whom and when" (even without knowing what is said).
 >
-> [Protection Recommendations] (1) The server operator voluntarily "does not record" (see Book Seven, 7.3); (2) users spread and break up correlation through multiple servers; (3) scenarios sensitive to session duration can reconnect periodically (cutting off correlatable continuous sessions).
+> [Protection Recommendations] (1) The server operator voluntarily "does not record" ; (2) users spread and break up correlation through multiple servers; (3) scenarios sensitive to session duration can reconnect periodically (cutting off correlatable continuous sessions).
 >
 > [Compliance Note] The server operator is in the position of a "data processor": even if it technically cannot decrypt content, it should follow the metadata minimization principle and publish a privacy policy stating "what is recorded and what is not."
 
@@ -1014,165 +987,6 @@ Under the layered attacks (nine-layer threat) above, ZT-DSP can guarantee:
 > [Privacy Risk] Boundaries of the threat model: this protocol does not defend against "physical contact attacks" (forensics after a device is confiscated), does not defend against "side-channel attacks" (power/electromagnetic analysis), and does not defend against "social engineering" (tricking you into handing over a token/door number).
 >
 > [Protection Recommendation] Complete protection in high-threat scenarios = protocol encryption (this protocol) + device physical security (TPM, full-disk encryption) + operational discipline (OPSEC, not using it on insecure devices). The absence of any single link lowers the overall security level.
-
----
-
-# Volume 7: Server Construction Guide
-
-> **[Introduction to This Volume]** This volume is written for readers who "want to build their own ZT-DSP server": the server's role (7.1), construction steps (7.2), security best practices (7.3), and ethical declaration (7.4).
->
-> **[What Beginners Should Focus On]** If you are starting from zero, first read 7.1 to understand the positioning that "the server is not a center, but a venue"; read the four steps of 7.2 in order; 7.3 is **required reading** -- it determines whether your server is a "public resource" or a "surveillance trap".
->
-> **[Prerequisites]** Volume 3, the hotel model (server = hotel); Volume 4, Phase One (the verification flow the server is responsible for); terminology: VPS, JSON, YAML, root, PoW (Appendix A).
-
-## 7.1 The Role of the Server in the ZT-DSP Ecosystem
-
-A server is not a "center", but a "venue". Picture this scenario: just like cafés, libraries, and parks in the real world -- anyone may open their own venue, set their own rules, and welcome or refuse particular guests. (The above is a scenario, not a technical description)
-
-A server operator has the following autonomy:
-
-- Define their own parameter dialect (random number length, rate, window, etc.)
-- Choose which TCAs' tokens to accept (whitelist)
-- Decide whether to require an authorization code
-- Decide whether to support fallback to old protocol versions
-- Decide whether to keep logs (but note: keeping logs goes against the spirit of the protocol)
-
-> **Related Knowledge**: This "venue autonomy" model is similar to IRC servers and Mastodon instances (the Fediverse) -- each node operates independently under its own rules, and an ecosystem forms through mutual recognition. Once you understand this model, you understand why ZT-DSP does not need an "official server".
-
-## 7.2 Building a Public-Interest Server
-
-### Step One: Choose Hardware and Network
-
-- A VPS or cloud server is recommended (with a public IP)
-
-```plain
-VPS (Virtual Private Server)
-├── Meaning: an independent virtual server sliced out of one physical server, with its own operating system and public IP
-├── Principle: virtualization technology (KVM/Xen, etc.) splits a physical machine into multiple isolated virtual machines, each running independently
-└── Rationale: far cheaper than a dedicated physical machine, yet more controllable than shared virtual hosting (you can install any software and have root privileges); it is a common starting point for self-hosted services
-```
-
-```plain
-IP Address (Internet Protocol Address)
-├── Meaning: the "door number" of every device on the network, in the form 1.2.3.4 (IPv4) or 2001:db8::1 (IPv6)
-├── Principle: data packets are routed by IP address -- the sender writes the destination IP, and routers along the way forward it hop by hop
-└── Rationale: without a unique address there is no way to address it. A public IP is the precondition for a server to be reachable from the Internet
-```
-
-- Bandwidth recommendation ≥ 100 Mbps (to support multiple concurrent sessions)
-- Memory recommendation ≥ 2 GB (to support the waiting pool and the matching pool)
-
-> **Practical Tip (pitfall warning)**: ① A cloud provider's "pay-per-traffic" plan may generate a large bill when hit by a flood of malicious traffic -- setting traffic alerts and quotas is recommended; ② the legal environment where the server is located determines your operating risk (see 7.4); please assess it yourself before choosing.
-
-### Step Two: Define the Parameter Library
-
-- Create your "library" file (JSON/YAML format, or a custom format)
-
-```plain
-JSON (JavaScript Object Notation)
-├── Meaning: a lightweight data interchange format that organizes key-value pairs and lists with { } and [ ], readable by humans and easy for machines to parse
-├── Principle: plain text + uniform syntax (double-quoted keys, comma-separated); every language has a ready-made parsing library
-└── Rationale: passing data between programs requires a "common language"; JSON is the default choice of the Web world
-```
-
-```plain
-YAML (YAML Ain't Markup Language)
-├── Meaning: a data format that expresses hierarchy through indentation, more "human-friendly" than JSON
-├── Principle: use indentation (spaces) for nesting, colons for key-value, and support comments (#)
-└── Rationale: configuration files (Kubernetes, Docker, CI/CD all use it) favor readability; but note: an indentation error causes parsing to fail, and YAML's "looseness" also brings parsing traps (e.g. "on/yes" being parsed as a boolean)
-```
-
-- Declare the random number length, generation rate, and time window
-- Declare the list of recognized TCAs (public keys)
-- Declare whether an authorization code is required
-
-> [Privacy Risk] The library file itself contains no sensitive data (only parameters and public keys), so it can be distributed publicly. **But be sure to verify the source of the public key list**: writing a malicious TCA public key into the whitelist is equivalent to admitting every token that TCA issues.
->
-> [Protection Recommendation] The library file should be distributed over HTTPS (to prevent man-in-the-middle tampering with parameters); attach a digital signature or checksum (hash) to the library file and verify it after the client fetches it, to prevent the confusion of "the client silently cannot connect after parameters were tampered with" or the attack of "being induced to connect to malicious parameters".
-
-### Step Three: Deploy the Server Software
-
-- Modify based on the official clients. **The official development languages are Python and Rust**; the official implementations are Python (the `zt_dsp_py` package) and Rust (`zt_dsp_rs`, located at the root of the code repository as a sibling of `zt_dsp_py/`), both dual-licensed MIT OR Apache-2.0; no C implementation exists yet. To implement in another language, use Volume 4 of this master guide + Appendix C as the specification, and use the official implementations as the comparison test target
-- Implement the parameter checking logic (silently discard on mismatch)
-- Implement waiting pool and matching pool management
-- Implement Phase One verification (token signature, authorization code, CRL lookup)
-- Implement Phase Two forwarding (public key exchange, no key derivation)
-- Implement Phase Three forwarding (confirmation-tag exchange, without holding the session key)
-- Implement Phase Four forwarding (encrypted data packets, no decryption)
-
-> **Practical Tip**: When implementing, self-check item by item against the verification checklist in Appendix C. The three most easily overlooked points: ① the silent-discard path must not write logs; ② secure destruction of the temporary private key; ③ clearing of waiting-pool entries after the 30-second timeout (missing this causes memory to be maliciously filled up -- this is a DoS entry point).
-
-## 7.3 Security Best Practices
-
-1. **Do not keep logs**: the server should not record any communication content, metadata, or connection logs. If you keep logs, you become a target for attackers (subpoena, hacking, internal leak)
-
-```plain
-Subpoena (subpoena/court order)
-├── Meaning: a legal document by which a court or law enforcement agency demands that specific data/records be handed over
-├── Principle: if you hold the data, the law can compel you to hand it over; if you do not hold the data at all, no one can compel you to hand it over
-└── Rationale: this is the legal motivation for "no-log design" (No-Log Policy) -- not holding it = cannot be demanded = both the operator and the served are safer
-```
-
-> [Privacy Risk + Compliance Note] Logs are the number one killer of privacy: connection logs (who connected when) and metadata logs (session duration, traffic volume) all turn into a "user behavior profile" in the three scenarios of a subpoena, the server being hacked, and an internal leak. **Not recording = cannot leak**, which is the most thorough privacy protection and part of the spirit of the ZT-DSP protocol. If the law of your operating location mandates record retention (such as data retention laws in some countries), at least do the following: record only the minimum necessary fields, store encrypted, keep a short retention period, and truthfully state it in the privacy policy -- "hiding the facts" is riskier than "stating them truthfully".
-
-2. **Run with least privilege**: the server software should run as a non-root user, restrict file system access permissions, and use containers or sandboxes for isolation
-
-```plain
-root (superuser)
-├── Meaning: the highest-privilege account in a Linux/Unix system, able to perform any operation
-├── Principle: privilege levels -- an ordinary user can only operate their own files, while root can modify the entire system
-└── Rationale: running a service as root = once the service is compromised, the attacker directly gains control of the whole machine; the principle of least privilege requires the service to run with reduced privileges
-```
-
-```plain
-Container / Sandbox
-├── Meaning: run a program inside an "isolation box", restricting the files, network, and system resources it can see
-├── Principle: containers (such as Docker) use operating-system-level isolation (namespaces + cgroup); sandboxes use finer-grained permission control (such as seccomp filtering system calls)
-└── Rationale: even if the program is compromised, the attacker is trapped inside the box and cannot reach the host machine or other services
-```
-
-```plain
-Docker (a container technology)
-├── Meaning: the most popular container platform -- package "program + runtime environment" into an image and run it on any machine with one command
-├── Principle: image (read-only template) -> container (running instance); images are stored in layers, sharing the base layer to save space
-└── Rationale: solves the environment consistency problem of "it runs on my machine but not on yours"; it is also a common means of isolated deployment
-```
-
-> [Protection Recommendation] Server security baseline: ① run as non-root + container isolation; ② the firewall opens only the ports required by the protocol (Firewall, see Appendix A); ③ regular security updates for the system and dependencies; ④ keys (the TCA public key list, the authorization code seed) are injected via environment variables or a separate configuration file, and do not enter the code repository (see the "Environment Variable" note in Appendix A); ⑤ monitor resource anomalies (a sudden spike in CPU/bandwidth is often a precursor to an attack).
-
-3. **Update the CRL regularly**: maintain an up-to-date token revocation list and promptly block compromised or abused tokens
-4. **Rate limiting and PoW**: implement lightweight proof of work (PoW) and rate limiting to prevent the waiting pool from being maliciously filled
-
-```plain
-PoW (Proof of Work)
-├── Meaning: require the requesting party to first pay a certain computational cost (solve a hard but verifiable puzzle) before it can continue to use the service
-├── Principle: the server poses a puzzle (such as "find a number whose hash result starts with N 0s"); the client spends time computing it and the server verifies it instantly; an attacker wanting to launch a massive number of requests must pay a massive amount of computing power
-└── Rationale: an asymmetric weapon against DoS/spam requests -- shifting the "cost of harassment" from the server to the attacker (mining in blockchain follows the same idea)
-```
-
-```plain
-Rate Limiting
-├── Meaning: limit the number of requests from the same source (IP/token) per unit time; exceeding the limit means rejection or delay
-├── Principle: record the request count of each source and trigger a penalty when the threshold is exceeded (discard/queue/block)
-└── Rationale: prevent a single-point flood from crowding out resources -- standard protection for waiting pools, login endpoints, and APIs
-```
-
-5. **Transparent operation**: publish the server's parameter configuration, TCA whitelist, and privacy policy (even if the policy is "we record nothing")
-
-> **Common Misconception**: security ≠ concealment. Some operators think "not publishing the configuration = more secure", but ZT-DSP parameters are supposed to be public in the first place (the open-protocol principle); concealment only prevents users from verifying whether your server's words and actions match. Security comes from "parameters that are hard to brute-force + cryptography that cannot be broken", not from "keeping the configuration secret".
-
-## 7.4 Ethical Declaration
-
-A server builder does not participate in the communication content, but decides whether the communication is forwarded. The following two constraints apply to all server operators:
-
-- Providing a server free of charge is a valuable contribution, and users should be informed and acknowledge it
-- Keeping logs, cooperating with censorship, and providing user data to third parties directly destroy user trust, and this can never be restored for any reason
-
-**The boundary of a server builder's responsibility: responsible only for registration and forwarding, not for holding content.**
-
-> [Compliance Note] In addition to the above constraints, server operators must also comply with the law of their operating location (data retention, content censorship, key disclosure obligations, etc.). When legal requirements conflict with the protocol design, you should **publicly explain your handling approach and its limits**, and let users decide for themselves whether to use that server. The uncertainty brought by concealing your handling approach is greater than that of a public explanation.
-
----
 
 # Volume 8: FAQ and Common Misconceptions
 
@@ -1297,785 +1111,6 @@ Silent drop eliminates this information leak. Whatever the attacker sends, the s
 
 > **Common Misconception**: encrypted communication ≠ legal exemption. Different countries have different rules on encrypted communication and anonymous networks (some require "lawful interception" capability and prohibit unlicensed encryption); "technically unbreakable" does not mean "legally unaccountable" -- your devices, the people you meet, and your behavioral patterns can all become law-enforcement evidence. Before using any encryption tool, understand and comply with local law.
 
-## Q15: The official client was audited and found to have so many BUGs -- is ZT-DSP still secure?
-
-**A: The answer has two halves.**
-
-The first half -- "is it still secure": the **protocol** and the **implementation** must be viewed separately. Multi-path cross-auditing of the official client code (about 32,000 lines in all) found that the vast majority of defects are **implementation-layer** engineering problems (exception handling, resource closing, cross-platform differences, test blind spots) rather than mathematical defects in the protocol specification of Volume 4; the only protocol-design-layer issue is "PSK can be brute-forced offline" (P0-7) -- it stems from the performance tradeoff of "deriving keys with a fast hash", and the mitigations are increasing PSK entropy and hardening with a slow function. More importantly: the way a zero-trust protocol responds to defects is not concealment, but **turning audit findings into published fixes and regression tests** -- this in itself is the practice of the principle "open protocol, free implementation".
-
-The second half -- "what can be learned": the audit method (multi-path cross-validation, live-fire reproduction on a target machine) and the regression discipline for five categories of typical vulnerabilities (phenomenon -> root cause -> fix -> lesson) are built directly into this specification as hardening clauses, see the verification checklist in Appendix C and the engineering-audit terminology in Appendix A.3. **Reading the protocol specification tells you "how it should be"; reading Appendix C and A.3 tells you "how it actually goes wrong" -- neither can be dispensed with.**
-
-> **Practical Tip**: Before writing an implementation, use the verification checklist in Appendix C together with the engineering and audit terminology in Appendix A.3 -- the C checklist tells you "what to do", and A.3 tells you "which pitfalls to avoid".
-
----
-
-# Appendix A: Fully Annotated Terminology (Tree Format)
-
-> **[Introduction to This Appendix]** This appendix is the "terminology dictionary" of the whole document, annotating all technical terms in the tree format requested by the user. It is divided into two groups:
->
-> - **A.1 Core Protocol Terminology**: terms actually used in this protocol specification (78)
-> - **A.3 Supplementary Terminology**: two parts -- ① supplementary protocol terms already used in the main text but not previously included (transcript, heartbeat, ratchet, etc.); ② engineering and security-audit terminology (fail-closed, race condition, file descriptor, fuzzing, etc., 24), to be read alongside security-audit practice
->
-> **[How to Use]** Every first occurrence of a term in the main text has a pointer (e.g. "for the full annotation see Appendix A"). You can also look terms up directly in alphabetical order. Each term uniformly contains three layers: **Meaning** (what it is), **Principle** (how it works), and **Starting point** (why it exists); some terms are accompanied by an **Analogy** (an everyday example) or a **Common Misconception**.
-
-## A.1 Core Protocol Terminology
-
-```plain
-Zero Trust
-├── Meaning: a security design philosophy -- trust no person or link in the network by default, until proven trustworthy by cryptographic evidence
-├── Principle: strip "trust" away from human morality and institutional reputation, and hand it only to mathematics (cryptography)
-└── Rationale: the traditional assumption of "the intranet is trustworthy and the extranet is not" has been broken by reality (insiders, compromised servers), requiring "never trust, always verify"
-```
-
-```plain
-Dynamic Synchronization
-├── Meaning: both communicating parties independently compute the same key by mathematical means, with the state updated every round and no third party involved
-├── Principle: both parties hold the same input (PSK/DH/salt) + the same formula (HKDF) -> necessarily produce the same output
-└── Rationale: static keys used long-term accumulate risk; dynamic updating lets every session/every round of communication "start anew"
-```
-
-```plain
-Silent Drop
-├── Meaning: for data packets that do not match the parameters, the server returns no response and writes no log, behaving as if the port did not exist
-├── Principle: error messages are an attacker's source of intelligence; not responding = giving no intelligence
-└── Rationale: make it impossible for a protocol prober to distinguish "port closed" from "parameters do not match", achieving stealth
-```
-
-```plain
-Out-of-Band Exchange
-├── Meaning: exchange initial trust information through a channel outside the communication network (face to face, encrypted mail, QR code)
-├── Principle: it is hard for a man in the middle to control two independent channels at the same time, so an out-of-band channel can serve as the starting point of trust
-└── Rationale: encrypted communication must have "initial trust"; out-of-band exchange does not depend on any central authority
-```
-
-```plain
-Principle of Least Privilege
-├── Meaning: each role/program is granted only the minimum privilege necessary to complete its task
-├── Principle: the greater the privilege, the greater the scope of damage when compromised; compressing privileges = compressing losses
-└── Rationale: many breach incidents stem from excessive privileges; this is the first principle of security design
-```
-
-```plain
-Kerckhoffs's Principle
-├── Meaning: even if the attacker knows the entire design of the system (except the key), the system should still be secure
-├── Principle: security should depend entirely on the secrecy of the key, not on the secrecy of the algorithm
-└── Rationale: algorithmic secrecy cannot last (it always leaks); a public algorithm withstands collective scrutiny and is in fact more reliable
-```
-
-```plain
-Token
-├── Meaning: a device identity credential issued by a TCA and protected by a digital signature. Picture this scenario: it is equivalent to a "digital ID card" (the above is a scenario, not a technical description)
-├── Principle: it contains a random seed + the TCA's Ed25519 signature; the TCA public key can verify authenticity, and it cannot be forged
-└── Rationale: the network needs an identity proof that is "unforgeable and verifiable offline"
-```
-
-```plain
-Token Hash (house number)
-├── Meaning: the hash value H(Token) of the token, 256 bits, used as a public identifier to find the peer on the network
-├── Principle: hash one-wayness — the token cannot be derived back from the house number, so the house number can be published safely
-└── Rationale: separating identity (secret) from the addressing identifier (public) is the foundation of anonymity
-```
-
-```plain
-TCA (Token Certification Authority)
-├── Meaning: a third party that issues tokens for devices and maintains the revocation list ("police department + notary office")
-├── Principle: holds an Ed25519 private key to issue tokens; the verifier only needs the public key to verify
-└── Rationale: without a TCA anyone can forge an identity (Sybil attack); federation avoids central monopoly
-```
-
-```plain
-PSK (Pre-Shared Key)
-├── Meaning: a 256-bit true random long-term key pre-shared by both parties, the device's "root identity"
-├── Principle: serves as one of the HKDF derivation inputs to provide identity anchoring — only two parties holding the same PSK can derive the same key
-└── Rationale: historical lessons prove that a rootless key cannot be engineered; the PSK is a trust anchor protected by mathematics
-```
-
-```plain
-Authorization Code
-├── Meaning: an admission credential issued by the TCA and bound to a specific server ("access card")
-├── Principle: the server checks a whitelist; without an authorization code, even a legitimate token cannot get in
-└── Rationale: lets the server manage each device individually (ban, rate limit), decoupled from the token's "universal identity"
-```
-
-```plain
-Hash (hash function)
-├── Meaning: a one-way function that compresses data of arbitrary length into a fixed-length string
-├── Principle: one-wayness (cannot be reversed) + collision resistance (different inputs extremely rarely give the same output); the same input always gives the same output
-└── Rationale: data fingerprints, password storage (storing only hashes), and public identifiers (house numbers) all rely on it
-```
-
-```plain
-SHA-3-256 (Secure Hash Algorithm 3, 256-bit)
-├── Meaning: a NIST-standardized hash function, arbitrary input → fixed 256-bit output
-├── Principle: Keccak sponge construction (absorb-squeeze); one-wayness is guaranteed by the mathematical structure
-└── Rationale: serves as a backup for SHA-2, so that breaking a single algorithm does not paralyze the whole industry
-```
-
-```plain
-HMAC (Hash-based Message Authentication Code)
-├── Meaning: a keyed hash operation; only the key holder can compute/verify it
-├── Principle: the key participates in the hashing process; without the key the correct result cannot be computed
-└── Rationale: a hash itself has no key (anyone can compute it); HMAC adds a "key threshold" to a hash, used for message authentication
-```
-
-```plain
-HKDF (HMAC-based Key Derivation Function)
-├── Meaning: the standard process for processing key material into multiple qualified encryption keys
-├── Principle: Extract compresses + Expand derives multiple sub-keys by purpose
-└── Rationale: the raw shared secret has an imperfect length/distribution and multiple purpose keys must be derived, so standardized processing is needed
-```
-
-```plain
-PRF (Pseudo-Random Function)
-├── Meaning: a deterministic function — the same input must give the same output, yet the output looks random and the input cannot be reversed
-├── Principle: a "digital blender": after the seed is thoroughly mixed, the output is a seemingly random sequence
-└── Rationale: both parties independently compute the same sequence with the same seed, with no need to transmit random numbers; but a leaked seed = the whole sequence leaked
-```
-
-```plain
-Entropy
-├── Meaning: a measure of randomness. 128 bits of entropy = 2^128 equally likely values
-├── Principle: cryptographic security relies on "the attacker cannot guess"; a predictable seed = a breakable system
-└── Rationale: why random numbers must be truly random — when they are pseudo-random and the seed is predictable, "random" equals "predictable" equals "insecure"
-```
-
-```plain
-TRNG (True Random Number Generator)
-├── Meaning: hardware that extracts randomness from physical phenomena (thermal noise, quantum effects)
-├── Principle: samples the microscopic unpredictability of the physical world
-└── Rationale: algorithms cannot generate true randomness; a true random source provides an unpredictable seed, but may be biased by environmental interference
-```
-
-```plain
-CSPRNG (Cryptographically Secure Pseudo-Random Number Generator)
-├── Meaning: an algorithmic random number generator that meets cryptographic security standards
-├── Principle: initialized with a true random seed + extended by a cryptographic algorithm; seeing part of the output does not allow predicting the rest
-└── Rationale: true random sources are slow and scarce; a CSPRNG uses a small true random seed to "breed" massive amounts of secure random numbers
-```
-
-```plain
-CRC-16 (Cyclic Redundancy Check)
-├── Meaning: a 16-bit check code that detects accidental corruption during transmission/storage
-├── Principle: the data is divided by a polynomial and the remainder is taken; recompute and compare, a mismatch means it was altered
-└── Rationale: transmission media corrupt bits randomly; note that it guards only against "accidents", not "malicious tampering"
-```
-
-```plain
-Digital Signature
-├── Meaning: an "anti-counterfeit mark" generated with a private key and verifiable with the public key
-├── Principle: the private key signs, the public key verifies; one without the private key cannot forge it
-└── Rationale: handwritten signatures can be imitated; digital signatures are mathematically guaranteed unforgeable, the cornerstone of electronic identity authentication
-```
-
-```plain
-Ed25519 (digital signature algorithm based on Curve25519)
-├── Meaning: a modern digital signature algorithm with high performance and high security
-├── Principle: elliptic curve cryptography + Schnorr signature structure; the signature is small (64 bytes) and signing is fast
-└── Rationale: mobile/embedded devices need power-efficient and fast signatures; Ed25519 is one of the current best practices
-```
-
-```plain
-Key Pair
-├── Meaning: a mathematically related pair of keys — a private key (sk, secret) and a public key (pk, public)
-├── Principle: the public key can be computed from the private key, but the private key cannot be derived back from the public key; "private key × peer public key" lets both sides compute the same shared secret
-└── Rationale: keys transmitted over the network can be eavesdropped; a key pair lets both sides "each compute the same key" without revealing their private keys
-```
-
-```plain
-X25519 (Curve25519 elliptic curve key exchange)
-├── Meaning: an elliptic curve key exchange algorithm; after exchanging public keys, both sides each compute the same shared secret
-├── Principle: the one-wayness of elliptic curve scalar multiplication — the private key cannot be derived back from a known public key (the discrete logarithm problem)
-└── Rationale: traditional DH keys are too long; elliptic curves reach the same security with 256 bits, saving power and bandwidth
-```
-
-```plain
-DH (Diffie-Hellman)
-├── Meaning: a protocol (1976) that lets both parties each compute the same shared secret over an insecure channel
-├── Principle: a one-way function: computing the shared value is easy, but deriving the private key back is computationally infeasible
-└── Rationale: the earliest solution to "passing secrets through the air", the ancestor of modern key exchange
-```
-
-```plain
-ECDH (Elliptic Curve Diffie-Hellman)
-├── Meaning: a version of DH key exchange implemented on elliptic curves
-├── Principle: scalar multiplication on the elliptic curve group replaces modular exponentiation
-└── Rationale: shorter keys and faster operations at equal security strength (X25519 is its modern implementation)
-```
-
-```plain
-Symmetric Encryption
-├── Meaning: encryption in which encryption and decryption use the same key
-├── Principle: the key participates in the transformation; the key holder can decrypt, one without the key cannot
-└── Rationale: extremely fast, suitable for large amounts of data; the difficulty is "how the two parties share the key securely" (solved by key exchange)
-```
-
-```plain
-AES-256-GCM (Advanced Encryption Standard 256 + Galois/Counter Mode)
-├── Meaning: symmetric encryption (AES) paired with an authenticated encryption mode (GCM); one algorithm provides both encryption and integrity authentication
-├── Principle: AES encryption guarantees confidentiality; GCM generates an authentication tag, and any tampering makes verification fail
-└── Rationale: encrypting without authenticating is vulnerable to ciphertext bit-flipping attacks; GCM combines the two and can run in parallel, making it the de facto standard
-```
-
-```plain
-ChaCha20-Poly1305 (stream cipher + authentication code combination)
-├── Meaning: an authenticated encryption combination of the ChaCha20 stream cipher + the Poly1305 authentication code
-├── Principle: ChaCha20 generates a keystream for XOR encryption; Poly1305 generates the authentication tag
-└── Rationale: fast even in pure software without hardware acceleration (AES-NI), the preferred choice for mobile/embedded devices
-```
-
-```plain
-AEAD (Authenticated Encryption with Associated Data)
-├── Meaning: the general term for encryption modes that provide both confidentiality (encryption) and integrity (authentication)
-├── Principle: the authentication tag is computed over the ciphertext and the AAD together; the AAD is visible but cannot be tampered with
-└── Rationale: in real communication, "fields that are visible but must be tamper-proof" (routing fields) and "fields that must stay secret" (payload) coexist
-```
-
-```plain
-IV / Nonce (Initialization Vector / nonce)
-├── Meaning: a random number introduced during encryption so that the same plaintext encrypts to different ciphertexts
-├── Principle: under the same key, every encryption must use a different IV, otherwise the same plaintext produces the same ciphertext and leaks the content pattern
-└── Rationale: the uniqueness of the GCM IV is critical — reuse directly destroys security
-```
-
-```plain
-AAD (Additional Authenticated Data)
-├── Meaning: data that is not encrypted but participates in authentication (such as a session ID, sequence number)
-├── Principle: GCM computes the authentication tag over "ciphertext + AAD"; if the AAD is tampered with, verification fails
-└── Rationale: routing fields must be visible to the server (so it can forward) and must also be tamper-proof — the AAD satisfies "visible and tamper-proof"
-```
-
-```plain
-Session Key / EK (Encryption Key)
-├── Meaning: the key actually used to encrypt data in this session; it is discarded when the session ends
-├── Principle: derived from the MK and the anchor, unique to each session
-└── Rationale: long-term keys are not suitable for encrypting data directly (too large an exposure surface); a session key limits the risk to a single session
-```
-
-```plain
-Master Key / MK
-├── Meaning: the session's "master key", derived from the three elements PSK, DH, and session_salt
-├── Principle: it does not encrypt data itself, only derives sub-keys such as the EK and the anchor
-└── Rationale: layered key management — the root key derives intermediate keys, intermediate keys derive use keys, and leakage is isolated layer by layer
-```
-
-```plain
-Session Salt (session_salt)
-├── Meaning: a 256-bit random number generated by the initiator, attached in plaintext to the public key exchange packet
-├── Principle: serves as one of the HKDF inputs to provide unpredictability
-└── Rationale: without a salt an attacker can precompute (offline brute-force the PSK derivation result); the salt makes every session "unguessable"
-```
-
-```plain
-Triple-Input Formula (PSK || DH || session_salt)
-├── Meaning: the three input elements of the session master key derivation: PSK, the DH result, and the session salt
-├── Principle: the PSK governs "who you are" (identity anchoring, as part of the HKDF IKM), DH governs "unique to this session" (forward secrecy, the other part of the IKM), and the salt governs "unguessable" (as the HKDF salt parameter, preventing precomputation)
-└── Rationale: historical lesson — using only one of them is bound to collapse; the three each serve their own role and none can be missing. Note (common pitfall): in the official implementation, session_salt is the HKDF salt parameter rather than a third segment concatenated into the IKM
-```
-
-```plain
-Forward Secrecy (FS)
-├── Meaning: even if the long-term key (PSK) leaks in the future, it does not affect the decryption security of past sessions
-├── Principle: each session uses its own independent ephemeral key; the ephemeral private key is destroyed when the session ends, and afterwards that missing link makes the old session key uncomputable
-└── Rationale: long-term key leakage is hard to avoid absolutely; forward secrecy limits the loss to "after the leak"
-```
-
-```plain
-Replay Attack
-├── Meaning: an attacker resends a captured legitimate data packet as-is, inducing the receiver to process it repeatedly
-├── Principle: if the receiver cannot distinguish new messages from old ones, it will execute repeatedly; a monotonically increasing sequence number is the classic defense
-└── Rationale: an attacker naturally has the ability to "record + replay"; every protocol with stateless verification faces this threat
-```
-
-```plain
-Sequence Number
-├── Meaning: a 64-bit counter incremented per packet, starting from 0
-├── Principle: the receiver accepts only sequence numbers "greater than the last received value"; replayed packets/out-of-order old packets are discarded
-└── Rationale: the infrastructure for anti-replay and anti-reordering, a standard component of almost all reliable protocols
-```
-
-```plain
-MITM (Man-In-The-Middle)
-├── Meaning: an attacker inserts itself between the two communicating parties, impersonating both at once, capturing/tampering with/forwarding all messages
-├── Principle: when neither side confirms identity, the attacker can establish a "seemingly normal" connection with each side separately
-└── Rationale: the number one threat to network communication; it gave rise to every mechanism for "confirming who the other party is", such as identity authentication, signatures, and PSKs
-```
-
-```plain
-Handshake
-├── Meaning: the interaction process that completes identity confirmation and key negotiation before data is formally transmitted
-├── Principle: several rounds of question and answer exchange the necessary information (identity proof, public key, random number), and both sides independently compute the same session key
-└── Rationale: without a handshake there is no shared key and no identity confirmation — it is the "preliminary step" of encrypted communication
-```
-
-```plain
-Anchor
-├── Meaning: a 256-bit session fingerprint derived from the MK, binding the entire session context
-├── Principle: anchor = HMAC(MK, context string); if both sides compute the same MK they necessarily compute the same anchor
-└── Rationale: confirms "we are in the same session", preventing session confusion and replay (the sequence number is bound to the anchor)
-```
-
-```plain
-Continuous Locking
-├── Meaning: every data packet carries the "next packet pre-key seed", changing the encryption context with each packet
-├── Principle: packet N announces the key seed of packet N+1; an attacker who captures packet N cannot decrypt packet N+1
-└── Rationale: advances forward secrecy from the "session level" to the "packet level", forming a forward-secrecy chain that keeps hopping channels
-```
-
-```plain
-Virtual Room
-├── Meaning: a protected placeholder space maintained by the server for the two parties that have been successfully paired
-├── Principle: a third party attempting to join is intercepted and dropped; the space exists yet is invisible and inaccessible from the outside
-└── Rationale: protects the hopping process of continuous locking from being interrupted by external connections
-```
-
-```plain
-Sub-channel
-├── Meaning: a "temporary group chat" inside the room, which can be dynamically created/destroyed
-├── Principle: each sub-channel has its own independent session key, sequence number space, and anchor derivation path
-└── Rationale: allows multiple independent forward-secrecy chains to run in parallel in the same room; use-and-burn, and closing discards the keys
-```
-
-```plain
-End-to-End Encryption (E2EE)
-├── Meaning: data is encrypted only at the sender and decrypted only at the receiver; intermediate links see only ciphertext
-├── Principle: keys are derived only at the two ends, and the server never holds key material
-└── Rationale: a server being compromised/coerced/acting maliciously internally is a real threat; E2EE makes the server "unable to see even if it wants to"
-```
-
-```plain
-TLS 1.3 (Transport Layer Security 1.3)
-├── Meaning: the encryption foundation of HTTPS, protecting the transmission security of the "client—server" link; its predecessor SSL (Secure Sockets Layer) was replaced by TLS due to security flaws, and the colloquial name "SSL certificate" is still in use today
-├── Principle: after the handshake negotiates keys (certificate verification + key exchange), all traffic is transmitted encrypted
-└── Rationale: guards against eavesdropping and tampering; note that it protects the "link" (you to the server), a different layer from E2EE's "end to end"
-```
-
-```plain
-WireGuard (a modern VPN tunnel protocol)
-├── Meaning: a lightweight and fast encrypted tunnel protocol
-├── Principle: Curve25519 key exchange + ChaCha20 encryption; one public key is one node identity
-└── Rationale: replaces the old IPsec/OpenVPN — less code, easier auditing, higher performance
-```
-
-```plain
-Traffic Analysis
-├── Meaning: inferring behavior without breaking the content, only through traffic characteristics (size/timing/direction/frequency)
-├── Principle: the content is encrypted but the metadata is still exposed; the behavior pattern itself is intelligence
-└── Rationale: the primary surveillance method of the encryption era; defense = flattening the characteristics (padding, jitter, noise)
-```
-
-```plain
-DoS / DDoS (Denial of Service / Distributed DoS)
-├── Meaning: exhausting the target's resources so it cannot serve; DDoS is launched simultaneously by a massive number of puppet machines (a botnet)
-├── Principle: server resources are limited; junk requests fill up the resources and normal requests are squeezed out
-└── Rationale: the cost of attack is far lower than the cost of defense (asymmetry), so every public service must consider it
-```
-
-```plain
-Sybil Attack
-├── Meaning: an attacker creates fake identities in bulk to impersonate "many people"
-├── Principle: when the system cannot verify that "one identity is backed by one person", identities can be forged without limit
-└── Rationale: a widespread threat to decentralized systems; requires an "identity cost" (PoW, real-name, TCA) to resist
-```
-
-```plain
-PoW (Proof of Work)
-├── Meaning: requires the requester to first pay a verifiable computational cost before using the service
-├── Principle: the server poses a puzzle, the client solves it (time-consuming), and the server verifies it in an instant
-└── Rationale: an asymmetric weapon that shifts the "harassment cost" from the server onto the attacker
-```
-
-```plain
-Rate Limiting
-├── Meaning: limits the number of requests from the same source per unit of time; exceeding the limit means rejection/delay
-├── Principle: records the source request count and triggers a penalty when the threshold is exceeded
-└── Rationale: prevents a single-point flood from hogging resources; a standard protection for waiting pools, logins, and APIs
-```
-
-```plain
-CRL (Certificate Revocation List)
-├── Meaning: a list recording invalidated tokens
-├── Principle: published periodically by the TCA; during verification the server also checks in sync whether "this certificate has already been revoked"
-└── Rationale: a token may be invalidated due to loss/leakage/abuse; without a revocation mechanism, an invalidated token remains valid forever
-```
-
-```plain
-TPM (Trusted Platform Module)
-├── Meaning: an independent security chip soldered on the motherboard, used to securely generate and store keys
-├── Principle: key generation/signing is done inside the chip; the private key never leaves the chip
-└── Rationale: keys stored in software can be read by malicious programs; hardware isolation locks the key into a physical chip
-```
-
-```plain
-HWID (Hardware Identifier)
-├── Meaning: a device-unique identifier derived from the device's hardware characteristics
-├── Principle: binds the key to "this device"; changing the device makes it invalid
-└── Rationale: low-cost devices without a TPM (IoT) need a "software-level physical binding" as a substitute
-```
-
-```plain
-P2P (Peer-to-Peer)
-├── Meaning: two devices communicate directly, without going through an intermediate server
-├── Principle: each device is both a client and a server
-└── Rationale: avoids the bottleneck, surveillance point, and single point of failure of a central server
-```
-
-```plain
-Socket (socket)
-├── Meaning: the network communication interface provided by the operating system
-├── Principle: abstracts a "network connection" into a readable/writable file handle
-└── Rationale: unifies the usage of different network protocols, so programmers need not care about low-level details
-```
-
-```plain
-IP Address (Internet Protocol Address)
-├── Meaning: the "house number" of every device on the network (IPv4 such as 1.2.3.4, IPv6 such as 2001:db8::1)
-├── Principle: packets are routed hop by hop to the destination by IP address
-└── Rationale: without a unique address there is no way to address it; a public IP is the precondition for a server to be reached
-```
-
-```plain
-VPS (Virtual Private Server, virtual private server)
-├── Meaning: an independent virtual server carved out of a physical server
-├── Principle: virtualization technology (KVM and the like) isolates multiple independent virtual machines
-└── Rationale: cheaper than a physical machine and more controllable than shared virtual hosting — a common starting point for self-built services
-```
-
-```plain
-JSON (JavaScript Object Notation, JS object notation)
-├── Meaning: a lightweight data interchange format; { } organizes key-value pairs, [ ] organizes lists; human-readable
-├── Principle: plain text + uniform syntax; every language has a ready-made parsing library
-└── Rationale: the "common language" for passing data between programs; the default choice of the Web world
-```
-
-```plain
-YAML (YAML Ain't Markup Language)
-├── Meaning: a data format that expresses hierarchy through indentation; more "human-friendly" than JSON
-├── Principle: indentation expresses nesting, a colon expresses key-value, # expresses a comment
-└── Rationale: configuration files favor readability; watch out for pitfalls such as indentation errors and 'on/yes' being parsed as a boolean
-```
-
-```plain
-root (superuser)
-├── Meaning: the highest-privilege account on a Linux/Unix system
-├── Principle: an ordinary user can only operate on their own files, whereas root can modify the entire system
-└── Rationale: running a service as root = compromising the service grants full control of the machine; least privilege requires running with reduced privileges
-```
-
-```plain
-Container / Sandbox
-├── Meaning: run a program inside an "isolated box", restricting the files, network, and resources it can see
-├── Principle: containers use namespaces + cgroups; sandboxes use finer-grained permission control (such as seccomp)
-└── Rationale: even if the program is compromised it stays trapped in the box and cannot touch the host
-```
-
-```plain
-Docker (a container technology)
-├── Meaning: the most popular container platform — "program + runtime environment" packaged into an image and run with one command
-├── Principle: image (read-only template) → container (running instance); images are stored in layers
-└── Rationale: solves the "inconsistent environment" problem; also a common means of isolated deployment
-```
-
-```plain
-Firewall (firewall)
-├── Meaning: a security device or software that allows/blocks network traffic according to rules
-├── Principle: inspects the source, destination, and port of each packet, matching rules to decide allow or drop
-└── Rationale: shrink the exposed surface — open only the ports that are needed and deny all others
-```
-
-```plain
-Steganography
-├── Meaning: hiding secret information inside a "looks normal" carrier so that an onlooker cannot see anything unusual
-├── Principle: exploits redundant space in the carrier that the human eye/routine detection does not notice
-└── Rationale: encryption protects "the content cannot be understood", steganography protects "the very existence of the content is not discovered"; they can be combined
-```
-
-```plain
-LSB (Least Significant Bit, least significant bit)
-├── Meaning: the rightmost, least significant bit in a binary number
-├── Principle: flipping the lowest bit of a pixel 0↔1 is invisible to the eye, yet data can be hidden bit by bit
-└── Rationale: the most classic embedding location for image steganography — "hidden in the most inconspicuous place"
-```
-
-```plain
-DNS (Domain Name System, domain name system)
-├── Meaning: the "Internet phone book" that translates domain names (example.com) into IP addresses
-├── Principle: a globally distributed database; queries are resolved level by level
-└── Rationale: without DNS you can only remember numeric IPs; DNS traffic is everywhere and hard to block, and is also used as a covert channel
-```
-
-```plain
-HTTP (HyperText Transfer Protocol, hypertext transfer protocol)
-├── Meaning: the protocol by which browsers and websites transmit web page data
-├── Principle: the client sends a request (GET/POST), the server returns a response; "start line + headers + body"
-└── Rationale: the most common type of traffic on the Internet — blending into HTTP = blending into the crowd
-```
-
-```plain
-HTTPS (HyperText Transfer Protocol Secure, secure hypertext transfer protocol)
-├── Meaning: the HTTP + TLS encrypted version
-├── Principle: adds a TLS layer on top of HTTP, preventing eavesdropping and tampering and verifying website identity
-└── Rationale: HTTP in plaintext can be rewritten by a man in the middle; HTTPS makes the transmission process itself secure
-```
-
-```plain
-DPI (Deep Packet Inspection, deep packet inspection)
-├── Meaning: a traffic inspection technique that looks not only at headers but deep into payload content
-├── Principle: a signature database (protocol fingerprints, keywords, statistical models) compares packet by packet
-└── Rationale: firewalls/ISPs identify "what is hidden in the traffic"; countering it = making the traffic look like ordinary content
-```
-
-```plain
-VPN (Virtual Private Network, virtual private network)
-├── Meaning: an encrypted "virtual leased line" established over a public network, with traffic exiting from the VPN server
-├── Principle: all traffic is sent through an encrypted tunnel to the VPN server for forwarding
-└── Rationale: anti-eavesdropping on public Wi-Fi, hiding the real IP, bypassing regional restrictions; the privacy boundary depends on the VPN provider's trustworthiness
-```
-
-```plain
-TTL (Time To Live, time to live)
-├── Meaning: the maximum time/hop count a packet is allowed to survive in the network
-├── Principle: decremented by one per hop; discarded when it reaches zero
-└── Rationale: prevents packets from looping endlessly (routing loops); avoids expired packets being processed repeatedly
-```
-
-```plain
-LoRa / BLE (long-range radio / Bluetooth Low Energy)
-├── Meaning: IoT wireless communication technologies; LoRa covers several kilometers, BLE tens of meters
-├── Principle: LoRa uses spread-spectrum modulation for long range at low rate; BLE is the low-power version of Bluetooth
-└── Rationale: power-saving and cheap wireless connectivity for IoT devices; can also serve as a physical-layer carrier to broadcast data
-```
-
-```plain
-OPSEC (Operations Security, operations security)
-├── Meaning: the practice of protecting operational information — overall security discipline of behavior, habits, and environment
-├── Principle: attackers often start from "behavior patterns" rather than "cryptography"; technical encryption cannot make up for behavioral leaks
-└── Rationale: cryptographic security ≠ operational security; in high-threat scenarios neither can be omitted
-```
-
-```plain
-Metadata
-├── Meaning: data about data — who, when, where, how often, how large
-├── Principle: metadata remains exposed even after the content is encrypted; "who communicates with whom and when" characterizes behavior better than the content
-└── Rationale: a new battlefield for privacy protection; the protocol counters it through encrypted token hashes, random padding, and a no-log design
-```
-
-```plain
-Subpoena (subpoena / court order)
-├── Meaning: a legal document by which a court or law enforcement agency demands the surrender of data/records
-├── Principle: if you hold the data, the law can compel you to hand it over; if you do not hold it, no one can demand it
-└── Rationale: the legal motive for a "no-log design" — not holding it = it cannot be demanded
-```
-
----
-
-## A.3 Supplementary Terms
-
-> **[Section Guide]** This section supplements two kinds of terms: **A.3.1** is protocol terms already in use in the main text but not previously catalogued; **A.3.2** is engineering and security audit terminology — if you encounter an unfamiliar word, come here first to look it up.
-
-### A.3.1 Supplementary Core Protocol Terms
-
-```plain
-transcript (handshake transcript)
-├── Meaning: a fixed-order concatenation of all materials exchanged by both parties during the handshake — both parties' phase-one raw frames, the session salt, and both parties' ephemeral public keys
-├── Principle: the transcript is concatenated into the HMAC input of the phase-three confirmation tag — if any step's material is tampered with by a man in the middle, the transcript changes and the tag is bound to mismatch
-└── Rationale: the handshake consists of multiple message steps, and an attacker may tamper at any step; the "final exam" must test "all steps exactly as they are", not just the last step
-```
-
-```plain
-Heartbeat
-├── Meaning: an empty-payload data packet that both parties send at a fixed interval (the official client uses 30 seconds) — the plaintext length is 0 and it contains no message content
-├── Principle: TCP only notices a disconnection when "sending data fails"; an idle connection that sends no messages may already be half-open. The heartbeat uses periodic packets to compress the disconnection-detection interval to 30 seconds
-└── Rationale: the "are you still alive" probe of a long connection; the heartbeat also participates in ratchet rotation, keeping the key chain advancing even when there are no messages
-```
-
-```plain
-Authentication Tag (GCM Tag)
-├── Meaning: the 16-byte "anti-forgery code" automatically attached by AEAD encryption (such as AES-256-GCM)
-├── Principle: computed over "ciphertext + AAD" together; the decrypting party recomputes and compares — if any bit is tampered with (even 1 bit), the comparison fails and the whole ciphertext is rejected
-└── Rationale: encrypting without authenticating allows "ciphertext flipping" attacks to tamper with content; the authentication tag merges "integrity + authenticity" into the encryption step
-```
-
-```plain
-Ratchet / Double Ratchet
-├── Meaning: a key-chain mechanism that "changes the key with every message sent"; the double ratchet is the complete form in which the Signal protocol combines "chain rotation + DH renegotiation"
-├── Principle: each packet carries the key seed for the next packet (next_seed), and both parties roll forward along the chain; old keys are destroyed after use — holding the current key does not let you compute past/future keys
-└── Rationale: the engineering of forward secrecy — ZT-DSP's "Continuous Locking" (4.2.5) is the same kind of idea as a chain ratchet, with the advance performed entirely internally by both parties
-```
-
-```plain
-Constant-time Comparison
-├── Meaning: a comparison method in which comparing two secret byte strings (such as a confirmation tag) takes exactly the same time no matter which bit differs
-├── Principle: an ordinary comparison "returns immediately at the first differing bit" — the timing difference gives an attacker a timing signal for "how many bits were guessed right"; functions like hmac.compare_digest compare every bit before returning, eliminating the signal
-└── Rationale: timing side channels are among the most covert leak channels; every comparison involving secrets must be constant-time
-```
-
-```plain
-Secure Zeroization / Secure Wipe
-├── Meaning: overwriting all memory bytes holding key material with zeros, while ensuring the compiler cannot optimize this "zeroing" away
-├── Principle: a plain zero assignment may be deleted by the optimizer as dead code; implementations such as secure_zero use memory barriers/volatile pointers to force the write through to memory. Combined with mlock it can prevent key pages from being swapped out to disk
-└── Rationale: a key being "used up" is not the same as "gone" — memory forensics/core dumps can recover residues; least exposure requires keys to be destroyed as soon as they are used
-```
-
-```plain
-Big-Endian (Byte Order)
-├── Meaning: the arrangement convention for multi-byte integers on the network — the most significant byte first. "Big-endian" is the standard for network byte order
-├── Principle: the same 64-bit sequence number may be "low byte first" in memory (x86 little-endian), but on the wire it must be unified as "high byte first" (big-endian) so that both parties can decode the same number
-└── Rationale: different CPUs have different byte orders, so a network protocol must mandate one — all integer fields in Appendix F (sequence number, length, timestamp) are big-endian
-```
-
-```plain
-Length Prefix
-├── Meaning: writing a field stating "how long the data is" (such as 4 bytes) before the actual data; the receiver reads the length first, then the data
-├── Principle: TCP is a byte stream with no "message boundaries"; the length prefix is the most reliable framing method — first read the fixed-length length field, then read exactly the payload of the declared length
-└── Rationale: every frame in Appendix F is framed by a length prefix; Pitfall: the length field is peer-controlled input, so an upper bound must be validated first (see A.3.2 Memory Exhaustion)
-```
-
-```plain
-TCP Sticky Packets / Sticky and Split (Framing Problem)
-├── Meaning: two messages in a TCP byte stream may "stick" together and arrive at once, and one message may be "split" and arrive in multiple pieces
-├── Principle: TCP only guarantees byte order, not message boundaries — boundaries are the application layer's own business
-└── Rationale: any protocol based on TCP must define its own "frame" (length prefix + upper-bound validation), otherwise the parser misaligns as soon as sticky/split packets occur
-```
-
-### A.3.2 Engineering and Security Audit Terms
-
-> In this group the labels `P0-x` / `P1-x` / `W-x` / `fN` are rule IDs used in engineering audits.
-
-```plain
-fail-open / fail-closed
-├── Meaning: when a system component throws an exception, fail-open = "let it pass and keep running", fail-closed = "deny/abort everything"
-├── Principle: when a security check (such as an authentication hook) crashes, fail-open is equivalent to skipping the check entirely — an attacker only needs to make the check throw to win
-└── Rationale: the classic trade-off between availability and security; security-class checks must be fail-closed, preferring to deny service rather than let it pass (the lesson of P0-1)
-```
-
-```plain
-Race Condition
-├── Meaning: multiple threads/processes access a shared resource concurrently and the result depends on execution timing — different timing gives different results
-├── Principle: another thread inserts itself between "check" and "use", and the shared state is changed between the two steps; lock-free cross-thread reads/writes are the most common form
-└── Rationale: concurrency is a performance need and a breeding ground for bugs (the mutual overwriting of timeouts in P0-4); shared mutable state must either be locked or eliminated with multiplexing
-```
-
-```plain
-File Descriptor (FD) and EMFILE
-├── Meaning: the number tag the operating system issues for every open "thing" (socket, file, pipe); EMFILE = the error "the tags are used up"
-├── Principle: a process has an upper limit on the number of FDs it can hold (hundreds to tens of thousands); each leaked socket permanently occupies a slot, and once the limit is reached the process can never open any file/connection again
-└── Rationale: forgetting to close resources on error paths (FD leaks) shows no harm in a short-lived CLI, but is bound to blow up in long-running embedded/service scenarios (the lesson of P0-3)
-```
-
-```plain
-Half-open Connection and CLOSE_WAIT (TCP State Machine)
-├── Meaning: a "zombie connection" in which one side of a TCP connection has closed while the other side is still hanging; CLOSE_WAIT is the hanging state in which "the peer has closed but the local end has not yet called close"
-├── Principle: TCP closing requires four waves; if the local end never calls close after receiving the peer's FIN, the connection stays in CLOSE_WAIT — visible at a glance in `netstat`/`ss`
-└── Rationale: the CLOSE_WAIT count is the most direct forensic means of finding FD leaks (target machine V4: 60 junk connections → CLOSE_WAIT=60, one-to-one correspondence)
-```
-
-```plain
-Slowloris Attack
-├── Meaning: a resource-type DoS — the attacker establishes a connection and then sends data at a "snail's pace" (such as 1 byte every 15 seconds), occupying the server's connection/processing slot for a long time
-├── Principle: the server decides to give up based on "how long without data counts as a timeout"; if the timer is reset every time 1 byte is received, the attacker can never time out
-└── Rationale: low-rate consumption is more covert and cheaper for the attacker than high-rate flooding; defense relies on "one overall deadline shared by the whole frame" (total deadline) rather than "each data receipt gets its own timeout" (H.3)
-```
-
-```plain
-Nagle's Algorithm and TCP_NODELAY
-├── Meaning: Nagle is TCP's merging of small packets to save bandwidth (accumulate a bit before sending); TCP_NODELAY is the socket switch that turns it off
-├── Principle: Nagle interacts with the peer's "delayed ACK" and can drag a single interactive send out to 40–200 ms — perceptible lag for chat-type low-latency protocols
-└── Rationale: bulk transfer wants throughput, interactive communication wants latency — encrypted chat should set TCP_NODELAY (the lesson of P1-1)
-```
-
-```plain
-I/O Multiplexing (selector / epoll / kqueue)
-├── Meaning: an operating system mechanism that lets one thread "watch over" multiple sockets at once and handle whichever is ready (in Python it is the selectors module)
-├── Principle: instead of spawning a thread per connection and blocking on it, hand a batch of sockets to the kernel to manage and handle them when ready — saving threads and eliminating the race in which "a shared timeout is overwritten by another"
-└── Rationale: the standard answer for a single-threaded multi-connection server (the fix direction for P0-4); also the cornerstone of high-concurrency servers
-```
-
-```plain
-Socket Options (SO_REUSEADDR / SO_EXCLUSIVEADDRUSE / SO_KEEPALIVE)
-├── Meaning: behavior switches for a socket — address reuse, exclusive binding, kernel-level keepalive probing, etc.
-├── Principle: the same option has different semantics on different operating systems: SO_REUSEADDR on Linux is used only for TIME_WAIT reuse, whereas on Windows it allows preempting a port another process is listening on (a port-hijacking surface)
-└── Rationale: "cross-platform consistency" must not be taken for granted — on Windows use SO_EXCLUSIVEADDRUSE instead (the lesson of P1-5/W-1)
-```
-
-```plain
-Memory Exhaustion (OOM / Out of Memory, resource-exhaustion DoS)
-├── Meaning: an attack/failure mode that makes the target process allocate memory until it is killed by the system or the whole machine is dragged down
-├── Principle: if a program "allocates memory according to the length the peer declares", an attacker sending a 4-byte fake length header can trick it into allocating 4 GiB — costing 4 bytes and inflicting 4 GiB
-└── Rationale: unauthenticated remote memory exhaustion is the cheapest attack (target machine V1 measured 4 bytes → 550.9 MB); every length/count field must have its upper bound validated first
-```
-
-```plain
-Path Traversal / Tainted Path
-├── Meaning: "untrusted input" from outside (environment variables, the network, user input) is used directly as a file path, which can induce the program to open any readable file
-├── Principle: "taint" refers to the external-origin marking of data; tainted data flowing into open()/file APIs without allowlist validation is a tainted path
-└── Rationale: the harm is limited on a single-user local machine, but in shared-host/CI scenarios it can be used to read key files (the lesson of P0-8); the fix relies on origin allowlists and a second permission check
-```
-
-```plain
-Supply Chain Attack
-├── Meaning: not breaking you, but breaking "the provenance of what you trust" — planting backdoors in hardware/dependency libraries/firmware before they leave the factory or are distributed
-├── Principle: users naturally trust "devices bought from legitimate channels and dependencies pulled from official sources"; poisoning the source poisons all downstream, and the victim is completely off guard
-└── Rationale: PSK and TPM are the number-one targets of supply chain attacks (4.1.4 privacy risks); defense relies on firmware provenance verification, dependency auditing, and a minimized trust chain
-```
-
-```plain
-Side-Channel Attack (including timing side channels)
-├── Meaning: not breaking the algorithm head-on, but inferring the secret from "physical/timing information leaked while the algorithm runs" (time consumption, power consumption, electromagnetic emissions, cache hits)
-├── Principle: for example, when comparing secret strings, "return immediately at the first differing bit" — an attacker measuring the time consumption can guess the secret bit by bit (timing side channel)
-└── Rationale: a mathematically flawless implementation can still be broken by "reading the clock"; defense relies on constant-time code, constant-time comparison, and masking countermeasures (4.1.4 high-security scenarios)
-```
-
-```plain
-Argon2id / scrypt / Password Hashing
-├── Meaning: key derivation/password hashing functions deliberately designed to be "slow and memory-hungry", making every attempt at brute-force enumeration pay a high price
-├── Principle: an ordinary hash computes hundreds of millions of times per second, making offline enumeration effortless; Argon2id/scrypt force each computation to consume a large amount of memory and time, amplifying the enumeration cost by several orders of magnitude
-└── Rationale: the core weapon against "offline brute-force cracking" (P0-7) — low-entropy material (passwords, weak PSKs) should pass through a slow function before entering a fast KDF
-```
-
-```plain
-Fuzzing
-├── Meaning: an automated testing method that bombards a program interface with large amounts of randomly/semi-randomly constructed malformed input to see whether it crashes, leaks, or hangs
-├── Principle: machines can generate thousands of malformed combinations per second that humans would not think of; every crash point corresponds to a missing input validation
-└── Rationale: the first health check of a protocol implementation (f1~f10 cover the length header/JSON/public key/timing); Pitfall: test functions must actually be collected by the test framework (the "tested illusion" of P1-9)
-```
-
-```plain
-Static Taint Analysis
-├── Meaning: a scanning technique that does not run the program but analyzes the source code directly, tracking which dangerous operations (files, memory allocation, commands) the "data flow of external input" can reach
-├── Principle: mark external input with a "taint tag" and propagate it along the call graph; when tainted data flows into a sensitive function it is reported — covering paths that manual auditing easily misses
-└── Rationale: one of the main tools for audit automation (this project's Mimosa scan found 6 HIGH items this way); but its conclusions are "candidate leads" and require manual verification of the data flow before rating
-```
-
-```plain
-PoC (Proof of Concept)
-├── Meaning: the minimal runnable code that proves a vulnerability really exists — only for "showing it to yourself" forensics, not for destruction
-├── Principle: words are not proof; a PoC turns a vulnerability into a reproducible, measurable, regressable experiment (target machines V1~V5 each come with forensic data)
-└── Rationale: the anchor of the security fix process — a fixed version counts as fixed only if it "cannot be pierced" by historical PoCs (regression discipline); Ethical boundary: a PoC should only be run on machines you own/are authorized for (the 127.0.0.1 target machine)
-```
-
-```plain
-Regression Testing
-├── Meaning: rerun all historical tests after every change to ensure "what was fixed does not break again and what was not touched was not broken"
-├── Principle: defects are often "fixed and then reappear" during changes — a regression suite is the mechanism that solidifies historical lessons into executable checks
-└── Rationale: defects that "survive" many rounds of change are precisely the fruit of missing regression discipline; every release runs the dual-platform matrix plus PoC regression
-```
-
-```plain
-BOM and Character Encoding (Byte Order Mark / UTF-8 / GBK)
-├── Meaning: BOM is the 3-byte invisible marker written at the start of a UTF-8 file (EF BB BF); GBK is the traditional encoding of Chinese Windows — both are classic sources of "the file content is fine, but the program cannot read it correctly"
-├── Principle: a program reading a file as "strict UTF-8" errors out on encountering BOM or GBK bytes; Windows Notepad saves UTF-8 with a BOM by default
-└── Rationale: PSK files and pipe input are the easiest to trip over on Windows (P1-2/P1-3); fix: read UTF-8 with utf-8-sig, decode stdin with errors="replace"
-```
-
-```plain
-Hook / Extension Mounting
-├── Meaning: the "slots" reserved by the protocol implementation — external modules (TCA verification, random enhancement, carrier encapsulation) are called at fixed mounting points, and can validate, abort, or rewrite data
-├── Principle: the core protocol keeps a minimal set, and extension capabilities are injected through mounting points; a mounting point declares three things — whether it can rewrite data (replace_data), how the contract is re-verified after rewriting, and whether it can abort (abort) and the path after aborting
-└── Rationale: makes external modules such as TCA and carrier encapsulation portable and pluggable; Common misconception: hooks are a **local behavior** and do not participate in on-wire interoperability — two implementations with different hook sets can still interoperate under the same protocol parameters (see Appendix A.3 for the related engineering terms)
-```
-
----
-
 # Appendix B: Parameter Configuration Reference
 
 > **[Appendix Guide]** All parameters are **reference values and are all freely modifiable**. Both communicating parties must use the same parameters. For the boundaries and risks of parameter modification, see Q12.
@@ -2171,7 +1206,7 @@ Before releasing your ZT-DSP implementation, confirm the following:
 - [ ] **Token verification**: TCA signature verification + CRL query + Authorization Code whitelist (if required) (4.1.2/4.1.3)
 - [ ] **Waiting-pool management**: cleared on 30-second timeout, registry entries are mutually invisible, no broadcasting (4.2.1)
 - [ ] **TCA optional**: allow a TCA-less P2P direct-connection mode (placeholder Token Hash derivation), or support multi-TCA federation (4.1.1/4.1.2)
-- [ ] **No backdoors**: plant no master key, log no user communications, report no data to any server (7.3)
+- [ ] **No backdoors**: plant no master key, log no user communications, report no data to any server (Volume 5.5, Security Guarantees and Boundaries)
 
 ## C.2 User Self-Check
 
@@ -2182,220 +1217,6 @@ Before using ZT-DSP, confirm the following:
 - [ ] Understanding TCA selection: the TCA you trust is community-recognized, not a mandatory authority (4.1.2)
 - [ ] Understanding parameter matching: your client parameters are consistent with the target server's library declaration (Appendix B)
 - [ ] Understanding risk: you understand your own threat model and the protocol's limitations (Volume 5)
-
-# Appendix D: Version Notes
-
-| Version | Date | Status | Notes |
-|------|------|------|----------|
-### D.1 Version Support Matrix (TPM and HWID)
-
-> **This table must be updated on every release**, marking for each version whether writing, reading or modifying the TPM and the HWID is supported.
-
-| Version | Release date | Write TPM | Write HWID | Read/modify TPM | Read/modify HWID | Notes |
-|---|---|---|---|---|---|---|
-| 1.0.0 | 2026-10-11 | Not supported | Not supported | Not supported | Not supported | The official clients `zt_dsp_py` / `zt_dsp_rs` contain no TPM/HWID code; the PSK and the token are supplied as ordinary configuration. **Planned for a later version**, and this table must be updated accordingly |
-
-| 1.0.0 | 2026-10-11 | **Published** | **First published version (the normative baseline of this document)**: includes the file-level guide and fully annotated terminology, the MK/EK derivation and four-phase on-wire format aligned item by item with the official implementations, the byte-by-byte and state-machine appendices F/G/H, the engineering and security-audit terminology in Appendix A.3, and Appendix E, the usage guide for the official clients (Python and Rust). The protocol specification is governed by this version. |
-
----
-
-# Appendix E: Official Client Guide (Python and Rust)
-
-> **[Appendix Guide]** This appendix covers ZT-DSP's official clients: `zt_dsp_py` (Python reference implementation) and `zt-dsp-rs` (Rust reference implementation), both dual-licensed MIT OR Apache-2.0. The Python client fully implements the core flow of Volume 4 and is the reference object for learning, debugging, and setting up a server; every command, parameter, and default value in this appendix has been checked item by item against the corresponding official implementation.
->
-> **[Points of Interest for Beginners]** Run through the "local dual-instance experience" in E.5 once, and you will see with your own eyes: the four handshake phases, Silent Drop (try deliberately entering wrong parameters), and heartbeat keep-alive. Once it works, the formulas in Volume 4 are no longer abstract symbols.
-
-## E.1 Obtaining and Installing
-
-| Method | Command | Intended Audience |
-|------|------|----------|
-| Run from source | `cd zt_dsp_py && pip install -e .` (dependencies: Python ≥ 3.10 + `pip install cryptography`) | Developers, people who want to read the source |
-| Package install | `cd zt_dsp_py && pip install .`, after which the `zt-dsp-py` command is available | General users |
-| Windows single file | Package it yourself: `cd zt_dsp_py && pyinstaller --onefile --name zt_dsp_py zt_dsp_py/__main__.py` (**no exe is shipped in this repository**; attach one to a Release when publishing) | Users who do not want to touch Python |
-
-> All three methods behave identically, and all offer two startup modes: an **interactive wizard** (run directly with no arguments) and **direct command-line connection** (with arguments such as `--role`). When stdin or stdout is redirected (pipe, CI, IDE runner), starting with no arguments does **not** enter the wizard; it prints usage and exits with status 0, so automation never blocks at a prompt.
-
-## E.2 Two Startup Modes
-
-**Mode 1: Interactive wizard (recommended for beginners)** — run the program directly and choose step by step as prompted:
-
-```text
-① Select role: 1 = listen (responder, passive wait); 2 = connect (initiator, actively initiates)
-② Enter the bind/target address and port (press Enter for the default: port 37291)
-③ Enter the PSK (press Enter = generate a brand-new high-entropy PSK and print it for the peer; or enter 64-character hex / Base64 / a file path)
-④ Enter the protocol parameters (press Enter for the defaults: random_len=256 bits, random_rate=1024 times/second, window=60 seconds)
-```
-
-**Mode 2: Direct command-line connection (recommended for scripts/servers)**:
-
-```bash
-# Listening side (responder)
-zt-dsp-py --role listen --port 37291 --psk-file psk.txt
-
-# Connecting side (initiator)
-zt-dsp-py --role connect --host 192.168.1.10 --port 37291 --psk-file psk.txt
-
-# Environment-variable method (recommended for scripts)
-set ZT_DSP_PSK=<64-digit hex>        # Windows
-export ZT_DSP_PSK=<64-digit hex>     # Linux/macOS
-zt-dsp-py --role listen --port 37291 --psk-env
-```
-
-> **Common misconception**: the two sides must choose **different** roles — one listen, the other connect. If both choose connect, nobody is listening and the connection will inevitably fail; if both choose listen, they wait for each other and can never connect.
-
-## E.3 CLI Parameter Quick Reference
-
-| Parameter | Default | Purpose | Corresponding Body Chapter |
-|------|--------|------|--------------|
-| `--role` | None (enters the interactive wizard) | `listen` = responder; `connect` = initiator | 4.2 |
-| `--host` | listen: `0.0.0.0`; connect: `127.0.0.1` | Bind/target address | 7.2 |
-| `--port` | `37291` | Port number | Appendix B |
-| `--psk` | None | Supply the PSK directly (**insecure**, visible in the process list) | 4.1.4 |
-| `--psk-file` | None | Read the PSK from a file (**recommended**, permissions 0600 suggested) | 4.1.4 |
-| `--psk-env` | None | Read from the environment variable `ZT_DSP_PSK` | 4.1.4 |
-| `--random-len` | `256` | Random number length (bits, a multiple of 8) | Appendix B |
-| `--random-rate` | `1024` | Random number generation rate (times/second) | Appendix B |
-| `--window` | `60` | Negotiation window (seconds, must match on both sides) | Appendix B |
-| `--retry-count` | `3` | Number of connection retries (connect only) | Appendix B |
-| `--retry-interval` | `5.0` | Retry interval (seconds) | Appendix B |
-| `--padding-min/max` | None (disabled) | Enable the random padding range (0~2048B, both must be given) | 4.2.4/5.4 |
-| `--jitter` | `0.0` | Send-timing jitter (seconds, 0=disabled) | 5.4 |
-| `--time-window` | `30` | Timestamp window (seconds, configurable per-peer) | 4.2.4/Appendix B |
-| `--silent-hold` | `15.0` | Strict silent hold duration in seconds (listen side waits silently early in the handshake, resisting active probing) | 4.2 |
-| `--version` | — | Show the version (e.g. `ZT-DSP_PY-1.0.0 (docs 1.0.0)`) | — |
-
-## E.4 Three PSK Injection Methods and Security Ranking
-
-| Priority | Method | Description |
-|--------|------|------|
-| Recommended | `--psk-file` | Set file permissions to 0600 (read/write by the owner only); the client proactively warns "file is accessible to group/other users" |
-| Second choice | `--psk-env` | Environment variable `ZT_DSP_PSK`; does not enter the command-line history or the process list |
-| Last resort | `--psk` | Written directly on the command line, **visible to anyone who can see the process list**, for temporary testing only |
-
-Format requirement: the PSK must be **exactly 32 bytes (256 bits)** of random data, encoded as **64-character hex** or **standard Base64**. The client rejects: public default values (such as `zt-dsp-default-psk-***`) and weak keys with too low entropy (too many repeated characters).
-
-> [Privacy risk] The PSK is the root trust Anchor where "a single-point leak compromises everything" (see 4.1.4). When testing, generate it with `secrets.token_hex(32)`; **do not** use guessable inputs such as birthdays, phone numbers, or dictionary words — although the client performs entropy checks, those checks can only stop obviously weak keys.
->
-> [Compliance note] When real communication is involved, PSK exchange must go through a secure Out-of-Band channel (face to face, encrypted email, etc.; see Principle 3 in 1.3), and must never be transmitted inside the ZT-DSP network.
-
-## E.5 Local Dual-Instance Experience (first run for absolute beginners)
-
-Open two terminal windows and proceed in order:
-
-```bash
-# Terminal 1 (listening side): generate a PSK and save it to a file
-python -c "import secrets; print(secrets.token_hex(32))" > psk.txt
-zt-dsp-py --role listen --port 37291 --psk-file psk.txt
-# → you see "[+] Listening on 0.0.0.0:37291 ... waiting for peer connection..."
-
-# Terminal 2 (connecting side):
-zt-dsp-py --role connect --host 127.0.0.1 --port 37291 --psk-file psk.txt
-# → you see "[+] Handshake complete, secure channel established." and you can exchange messages
-```
-
-> **Hands-on observation points**:
-> - Terminal 1 will display "connection from ('127.0.0.1', port)" — this is the "check-in registration" from the server's perspective (4.2.1)
-> - Type a message and press Enter to send; `/quit` or `Ctrl+C` to exit
-> - Change Terminal 2's PSK file to a different value and connect again: Terminal 1 will **Silent Drop** (it only prints diagnostics to the local stderr and returns no error to the peer) — this is the Silent Drop of 4.3
-> - After one side disconnects, the other side will report "the connection may be lost" within about 30 seconds due to heartbeat failure (4.2.5 heartbeat keep-alive)
-
-## E.6 Common Troubleshooting
-
-| Symptom | Cause and Troubleshooting |
-|------|------------|
-| "Connection failed, maximum retry count reached" | The peer is not listening / wrong IP or port / blocked by a firewall. Check whether the peer has started and whether the ports match |
-| "Handshake failed: parameter mismatch" | The two sides' 7 matching parameters differ (random_len / random_rate / window / key_len / hash / aead / module_flags). **Compare both sides' parameters one by one** (Appendix B) |
-| Disconnects after connecting **without any error**, or "Handshake failed: Phase 1 parse failed" | A typical manifestation of parameters being silently dropped: the client sends packets with default parameters while the server checks against a custom library declaration, so all of them are dropped. Check the 7 matching parameters item by item against both sides' library files (random number length, rate, window, key length, hash, encryption, module flags) |
-| "PSK must be exactly 32 bytes..." | PSK format error: it must be 64-character hexadecimal or standard Base64, and the entropy must not be too low |
-| The message "you are trying to connect to the local host" | Self-connection warning. During local dual-instance testing, confirm the two instances have different roles and matching ports (E.5) |
-| Message send failure "session has irreversibly desynchronized" | After a send failure the key has already rotated (consume state first, then send, 4.2.4), the session cannot be recovered, and **you must reconnect** — this is designed behavior, not a bug |
-| A long connection drops after about 15 seconds with no packet | The data-phase timeout should be 60 seconds; make sure you are using the current version |
-
-## E.7 Correspondence with General Guide Chapters
-
-| Client Behavior | Corresponding Chapter |
-|------------|----------|
-| Interactive wizard's role/PSK/parameter input | 4.2.1 (Phase 1), 4.1.4 (PSK) |
-| Phase 1 frame (param/identity/nonce) | 4.2.1 on-wire frame format |
-| `--window` / `--random-len` / `--random-rate` | Appendix B (negotiation parameters, must match on both sides) |
-| `--time-window` / `--padding-min/max` / `--jitter` | 4.2.4 / 5.4 (timestamp window, traffic-analysis defenses) |
-| Silent Drop (no response, no close) | 4.3, 7.2 |
-| 30-second heartbeat empty packet | 4.2.5 |
-| Key erasure at session end | 4.2.3 step 6, 7.3 |
-| Placeholder Token Hash (when there is no TCA) | 4.1.1 P2P direct-connection placeholder path |
-
-## E.8 Security and Privacy Notes
-
-- **Logging**: by default the official client only prints status to the terminal (nothing is written to disk). When embedding it in a server scenario, follow 7.3 — do not record communication content, metadata, or connection logs, and do not write logs on the Silent Drop path
-- **Sensitive information on the command line**: `--psk` is exposed in the process list; in production always use `--psk-file` (0600) or `--psk-env`
-- **Local diagnostic output**: on Silent Drop the client prints the reason to the **local stderr** (e.g. "Phase 1 parse failed"); this is a diagnostic for the operator and is **not** sent to the peer — do not pipe it into a logging system and expose it externally
-- **Embedded/server scenarios**: it is advisable to reduce the silent hold duration (SILENT_DROP_HOLD, default 15 seconds) and combine it with per-IP rate limiting, to prevent malicious connections from occupying connection slots for a long time
-
-## E.9 Other Language Implementations and the Official Implementation Directory
-
-The specification in this master guide is **independent of implementation language**: the on-wire format (the four frame types, parameter JSON, AAD/nonce construction) contains no language information, and any implementation in any language that follows Volume 4 + Appendices F/G/H can interoperate with the official implementations described in this section.
-
-- **Official development languages and official implementations**: ZT-DSP's official development languages are **Python and Rust**, corresponding to two official implementations — Python (`zt_dsp_py`) and Rust (`zt_dsp_rs`), both dual-licensed MIT OR Apache-2.0. The Rust implementation lives in the `zt_dsp_rs/` directory at the root of the code repository, a sibling of `zt_dsp_py/` (crate `zt-dsp-rs` v1.0.0, binary `zt-dsp-rs`), and is part of the official compatibility commitment, not experimental code.
-- **Adding other languages**: implementations in languages not covered by this master guide go into a **directory at the root of the code repository `ZT-DSP-client` named after the implementation identifier** (a peer of `zt_dsp_py/` and `zt_dsp_rs/`, for example `zt_dsp_go/`); there are **no layout requirements**, and an implementation may iterate indefinitely in any form.
-- **Compatibility boundary**: any implementation interoperates per the specification as long as its parameters and on-the-wire bytes match; implementations that do not follow this document do not interoperate with these implementations — the handshake will fail at the Phase 3 confirmation tag, which is by design, not a defect.
-
-## E.10 Rust Official Client Guide
-
-> Rust and Python are both **official development languages**: `zt_dsp_rs/` sits **alongside** Python's `zt_dsp_py/` at the repository root, with implementation ID **`ZT-DSP_RS-1.0.0`**, and is **byte-for-byte interoperable** with the Python client on the wire.
-> Every command below was executed and verified (2026-10-11, Rust 1.98.1; crate `zt-dsp-rs` 1.0.0).
-
-### E.10.1 Build
-
-```bash
-cd zt_dsp_rs
-cargo build --release     # output: target/release/zt-dsp-rs (zt-dsp-rs.exe on Windows)
-cargo test --release      # 63 passed
-```
-
-> **Known trap**: if the working-directory path contains **non-ASCII characters** (a Chinese path, for example), Cargo fails to build. Point the target directory at a pure ASCII path:
-> ```powershell
-> $env:CARGO_TARGET_DIR = "C:\rs-target"
-> cargo build --release
-> ```
-
-### E.10.2 Generate and distribute a PSK
-
-```bash
-zt-dsp-rs pskgen          # prints a 256-bit high-entropy PSK as 64 hex characters, to hand to the peer
-```
-
-### E.10.3 Establish a session (two terminals)
-
-```bash
-# Terminal 1 (listen side, responder)
-zt-dsp-rs --role listen  --host 0.0.0.0 --port 37291 --psk-file ./psk.txt
-
-# Terminal 2 (connect side, initiator)
-zt-dsp-rs --role connect --host 127.0.0.1 --port 37291 --psk-file ./psk.txt
-```
-
-Both sides print `Handshake complete, secure channel established`, after which messages can be exchanged.
-
-### E.10.4 Options
-
-The Rust client's options are **the same as the Python client's, with the same meaning**: `--role`, `--host`, `--port`, `--psk`, `--psk-file`, `--psk-env`, `--random-len`, `--random-rate`, `--window`, `--time-window`, `--retry-count`, `--retry-interval`, `--padding-min`, `--padding-max`, `--jitter`, `--silent-hold` (see E.3/E.4 for meanings, defaults and security advice). It adds one option:
-
-| Option | Default | Description |
-|---|---|---|
-| `--rate-limit` | `0` | Connection rate limit (operations/second, 0 = disabled; P0-6 hardening) |
-
-`--psk-env` reads the `ZT_DSP_PSK` environment variable.
-
-### E.10.5 Differences from the Python client
-
-| Capability | Python (`zt_dsp_py/`) | Rust (`zt_dsp_rs/`) |
-|---|---|---|
-| Interactive wizard | Yes (E.2) | **No** -- running with no arguments only prints usage; `--role` must be given explicitly |
-| Unique subcommands | -- | `pskgen` (generate a PSK), `bench` (handshake / session throughput / crypto primitives) |
-| Unique option | -- | `--rate-limit` |
-| On-wire interoperability | The two are **byte-for-byte interoperable** (a loopback handshake was verified) | Same |
-
----
 
 # Appendix F: Byte-by-Byte On-Wire Protocol Specification
 
@@ -2539,7 +1360,7 @@ tag_resp = HMAC-SHA3-256(MK, "ZT-DSP-CONFIRM-RESP-v3" ‖ transcript)
 3. The responder sends the `tag_resp` frame (note: at this point it has **not yet** verified the peer's tag content)
 4. Each side checks the peer's tag using **constant-time comparison**; if either side does not match → erase all key material → handshake failure (both the initiator and the responder report ZTDSPSecurityError)
 
-> **Common misconception**: "the responder sends its own tag only after verification passes" is an old statement from an early draft and does not match the official implementation. The responder "sends first, compares after". This is not a security hole: the tags are each side's own HMAC, and an attacker cannot impersonate either side by "sending a correct tag first" — it has no MK and cannot compute either side's correct tag; whichever side compares wrong immediately erases the keys and terminates.
+> **Common misconception**: "the responder sends its own tag only after verification passes" is a common misreading and does not match the official implementation. The responder "sends first, compares after". This is not a security hole: the tags are each side's own HMAC, and an attacker cannot impersonate either side by "sending a correct tag first" — it has no MK and cannot compute either side's correct tag; whichever side compares wrong immediately erases the keys and terminates.
 
 **Binding meaning**: the transcript covers the **raw bytes** of both sides' Phase One frames — the parameter JSON, the identity declaration, and the access nonce are all included. Any substitution of the identity declaration or parameters by a man-in-the-middle, and any "canonical re-encoding" in either implementation, will make the transcript differ and the tags necessarily wrong. Legitimate modifications to parameters/identity by the TCA extension layer also cause no false failure, because "what is changed is the raw frame that both sides can see" (both sides bind the same byte sequence).
 
@@ -2612,8 +1433,6 @@ The implementation must build in the following hard upper bounds; **all upper-bo
 | Sequence number / timestamp | 8 B (uint64 BE) | Phase Four |
 | GCM nonce | 12 B | Phase Four |
 
----
-
 # Appendix G: Traffic Analysis Defense Implementation Details
 
 > **[Reading guide for this appendix]** The defense matrix in Section 5.4 states "what to defend with"; this appendix states "exactly how to encode it". The three defenses — padding, jitter, and the timestamp window — are all provisions at the **protocol behavior layer**; two implementations can interoperate even when their algorithms are correct but their parameters differ — this is precisely the design value of their "unilateral enablement".
@@ -2663,8 +1482,6 @@ The implementation must build in the following hard upper bounds; **all upper-bo
 | Advanced (anti-length-profiling) | 512~2048B | 0~0.5s | 30s | Message lengths are smoothed out |
 | High-adversary | 1024~2048B | ≥ 1s | 15~30s | Combined with sending timing jitter (G.3) |
 | High-latency/unreliable links | Optional | — | 60s+ | A wide window is traded for availability; replay protection is delegated to the sequence number |
-
----
 
 # Appendix H: State Machines, Timeouts, and Error Handling Matrix
 
@@ -2842,5 +1659,5 @@ ZTDSPError (protocol exception base class)
 
 - **Any failure during the handshake** (including a hook abort or an escaping exception) → the entry point uniformly performs a complete cleanup: PSK, MK, anchor, and EK_send/EK_recv are all securely zeroed, and the session state is reset. **Never exit with keys** — this is the hard requirement of "minimal exposure surface" (the failure-path version of step 6 in 4.2.3).
 - **Send failure during the data phase** → the keys have already rolled forward (F.5), and the session is **irreversibly desynchronized**: clean up and require reconnection. The peer object is single-use — reconnection must create a new Peer and provide the PSK again (after a successful handshake the PSK has been erased per protocol, so the old object cannot be reused).
-- **Security error on the receive side during the data phase** → session termination + complete cleanup; a security event may optionally be reported to the upper layer for auditing (but note the no-logging principle of 7.3 — local auditing and external records are two different things).
+- **Security error on the receive side during the data phase** → session termination + complete cleanup; a security event may optionally be reported to the upper layer for auditing (but note the no-logging principle in Volume 5 — local auditing and external records are two different things).
 - **Cleanup must be idempotent**: the three threads for sending, receiving, and heartbeats may each be the first to discover that the session is dead, and the cleanup logic must guarantee that "the socket is closed exactly once, the keys are erased exactly once, and the final notification is triggered exactly once"; otherwise a long-running server will accumulate half-open sockets (file descriptor leaks) and residual keys.
