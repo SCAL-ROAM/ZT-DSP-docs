@@ -1,0 +1,13 @@
+# Keep dependencies patched.
+#
+# This repository carries no build dependencies. The one moving part is the Pages
+# workflow, which references an external action and is therefore worth watching.
+version: 2
+
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    labels: [dependencies, ci]
