@@ -1,6 +1,6 @@
 # ZT-DSP 协议文档
 
-> 当前协议的规范文档。以 `cn/spec/ZT-DSP_1.0.0_总指导.md` 为准（docs 版本 1.0.0）。
+> 当前协议的规范文档。以 `cn/spec/ZT-DSP_1.1.0_总指导.md` 为准（docs 版本 1.0.0）。
 >
 > **本仓库与代码仓库的对应关系**：规范规定 code 侧的协议行为与可调参数；代码侧在入口处声明"本实现遵循《ZT-DSP 协议总指导》"。双方不靠版本号绑定。
 
@@ -17,10 +17,10 @@ ZT-DSP-docs/
 ├─ CITATION.cff              引用元数据
 ├─ _config.yml               GitHub Pages 配置
 ├─ cn/                       中文侧
-│  ├─ spec/ZT-DSP_1.0.0_总指导.md      规范正文（唯一现行版）
+│  ├─ spec/ZT-DSP_1.1.0_总指导.md      规范正文（唯一现行版）
 │  └─ 术语对照表.md                     中→英术语基线
 ├─ en/                       英文侧（与 cn/ 逐份对应）
-│  ├─ spec/ZT-DSP_1.0.0_Master_Guide.md
+│  ├─ spec/ZT-DSP_1.1.0_Master_Guide.md
 │  └─ Glossary.md
 └─ .github/                  议题表单与 Pages 工作流
 ```
@@ -31,8 +31,8 @@ ZT-DSP-docs/
 
 | 文件 | 内容 |
 |------|------|
-| `cn/spec/ZT-DSP_1.0.0_总指导.md` | **协议总规范**（中文侧）。含第四册核心协议、附录 B 参数参考、附录 C 实现校验清单、附录 F 线上逐字节规范、附录 G 流量防御细节、附录 H 状态机与超时矩阵。 |
-| `en/spec/ZT-DSP_1.0.0_Master_Guide.md` | 同上，英文侧。 |
+| `cn/spec/ZT-DSP_1.1.0_总指导.md` | **协议总规范**（中文侧）。含第四册核心协议、附录 B 参数参考、附录 C 实现校验清单、附录 F 线上逐字节规范、附录 G 流量防御细节、附录 H 状态机与超时矩阵。 |
+| `en/spec/ZT-DSP_1.1.0_Master_Guide.md` | 同上，英文侧。 |
 
 ## 双语镜像
 

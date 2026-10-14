@@ -24,7 +24,7 @@ body:
     id: location
     attributes:
       label: Location
-      description: File path and section or line, for example en/spec/ZT-DSP_1.0.0_Master_Guide.md section 4.2.4
+      description: File path and section or line, for example en/spec/ZT-DSP_1.1.0_Master_Guide.md section 4.2.4
     validations:
       required: true
   - type: textarea
