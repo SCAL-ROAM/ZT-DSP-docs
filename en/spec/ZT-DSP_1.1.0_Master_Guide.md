@@ -1,5 +1,11 @@
 # ZT-DSP Protocol Master Guide Library (1.0.0)
 
+> **Positioning (2026-10-14)**
+> This file is the **implementation basis of the communication profile** -- a lower layer in ZT-DSP's layered structure.
+> ZT-DSP has been generalised since 2026-10-14: see the core specification (draft) for the transport- and
+> application-independent core, and the usage profiles (draft) for the communication and authentication profiles.
+> This file **remains in force**; until the layered documents are reviewed, this file governs.
+
 **Zero Trust Dynamic Synchronization Protocol**
 (Zero Trust Dynamic Synchronization Protocol)
 
