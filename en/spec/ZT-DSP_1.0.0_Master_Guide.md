@@ -3,7 +3,7 @@
 > **Generalisation proposal (2026-10-14, draft)**
 > A proposal exists to lift ZT-DSP from a communication protocol to a **general-purpose one**: a core layer doing PSK-based
 > mutual authentication and key agreement, independent of transport and application, with communication and
-> authentication as profiles. See `cn/spec/ZT-DSP_draft_Specification.md` (**Chinese draft only so far**).
+> authentication as profiles. The proposal text (a Chinese draft, pending review) is not included in this repository.
 > **This file remains in force**; the proposal is unreviewed and does not replace it.
 
 **Zero Trust Dynamic Synchronization Protocol**
