@@ -1,11 +1,5 @@
 # ZT-DSP Protocol Master Guide Library (1.0.0)
 
-> **Positioning (2026-10-14)**
-> This file is the **implementation basis of the communication profile** -- a lower layer in ZT-DSP's layered structure.
-> ZT-DSP has been generalised since 2026-10-14: see the core specification (draft) for the transport- and
-> application-independent core, and the usage profiles (draft) for the communication and authentication profiles.
-> This file **remains in force**; until the layered documents are reviewed, this file governs.
-
 **Zero Trust Dynamic Synchronization Protocol**
 (Zero Trust Dynamic Synchronization Protocol)
 
@@ -22,7 +16,7 @@
 > - **This document**: the *ZT-DSP Protocol Master Guide*.
 > - **Applies to**: This file specifies the protocol behavior and tunable parameters on the code side — `random_len`, `random_rate`, `window`, `time_window`, `key_len`, `hash`, `aead`, `module_flags`, `padding`, `jitter`, etc.; adjusting these settings is governed by this document.
 > - **Corresponding implementation**: the code side declares at its entry point that "this implementation follows the *ZT-DSP Protocol Master Guide*" (for the Python implementation in this repository, see `FOLLOWS_DOC` in `zt_dsp_py/version.py`).
-> - **About version numbers**: this project has three kinds of version number — the **total-guide version** (the revision number of this document itself, 1.1.0), and the **client versions** / **server versions** (the full identifier of each implementation). The relation between them and this document is **many-to-many**, not one-to-one: several implementations of the same kind whose protocol behaviour has not changed share one applicability declaration, and the same guide may apply to several client and server versions at once. **Identical version numbers do not mean the same implementation and do not constitute a compatibility claim.** **The protocol version enters the transcript (since 1.1.0)**: the Phase One parameter JSON carries a mandatory `proto` field, which rides into the transcript and is therefore covered by the Phase Three confirmation tags; a peer that omits it (1.0.0 or earlier) is judged parameter-invalid and dropped rather than guessed at. The Phase Four AAD still carries no version string -- it exists for routing and authentication, and a version there buys nothing.
+> - **About version numbers**: this project has three kinds of version number — the **total-guide version** (the revision number of this document itself, 1.0.0), and the **client versions** / **server versions** (the full identifier of each implementation). The relation between them and this document is **many-to-many**, not one-to-one: several implementations of the same kind whose protocol behaviour has not changed share one applicability declaration, and the same guide may apply to several client and server versions at once. **Identical version numbers do not mean the same implementation and do not constitute a compatibility claim.** **The handshake frames carry no version string whatsoever**: neither the Phase One parameter JSON nor the Phase Four AAD contains a version or protocol identifier field. Whether the peer is compatible is reflected by the Phase Three confirmation tag check.
 
 ## Beginner's Guide (Please Read This First)
 
@@ -503,7 +497,7 @@ In ZT-DSP, the handshake is divided into four phases:
 5. **Capability flags**: declares the modules and cryptographic parameters that A supports (such as the list of supported encryption algorithms and parameters)
 6. **Access nonce**: conforms to the parameters declared by the server library (length, rate, format); it serves as an identity heartbeat, proving that A is "alive" and holds the correct key material
 
-> **On-the-wire frame format (checked byte by byte against the official client)**: On the network, the above 6 items of information are not "6 independent fields"; they are packed into one phase-one frame (**for the complete byte-by-byte layout, the on-the-wire structure and validation rules of the parameter JSON, and the upper-limit constants, see Appendix F.1; under the default parameters this frame is about 244 bytes minimum**):
+> **On-the-wire frame format (checked byte by byte against the official client)**: On the network, the above 6 items of information are not "6 independent fields"; they are packed into one phase-one frame (**for the complete byte-by-byte layout, the on-the-wire structure and validation rules of the parameter JSON, and the upper-limit constants, see Appendix F.1; under the default parameters this frame is about 228 bytes minimum**):
 
 ```plain
 Phase-one frame (on-the-wire format):
@@ -1263,19 +1257,11 @@ The following conventions apply to **all four frame types**:
 | … | nonce_len | 4B | uint32 BE | Access nonce length, ≤ 512 |
 | … | nonce | nonce_len | Raw bytes | Access nonce (derivation formula in 4.2.1) |
 
-**On-wire structure of the parameter JSON**: keys are arranged in **lexicographic order**, using **compact separators** (`,` and `:`, no spaces) and UTF-8 encoding. Actual on-wire bytes under the official default parameters (136 bytes total):
+**On-wire structure of the parameter JSON**: keys are arranged in **lexicographic order**, using **compact separators** (`,` and `:`, no spaces) and UTF-8 encoding. The parameter JSON **contains no version or protocol identifier field**. Actual on-wire bytes under the official default parameters (120 bytes total):
 
 ```json
-{"aead":"AES-256-GCM","hash":"SHA3-256","key_len":256,"module_flags":{},"proto":"1.1.0","random_len":256,"random_rate":1024,"window":60}
+{"aead":"AES-256-GCM","hash":"SHA3-256","key_len":256,"module_flags":{},"random_len":256,"random_rate":1024,"window":60}
 ```
-
-**Protocol version field `proto` (since 1.1.0)**: `proto` is **mandatory** and carries the protocol version string. It rides inside the Phase 1 frame, hence into the handshake transcript, hence under the Phase 3 confirmation tags: rewriting or stripping the field makes the confirmation tags fail.
-
-- **Peer sends no `proto` (i.e. 1.0.0 or earlier) -> the parameters are judged invalid and the link drops.** No fallback, no guessing. That refusal *is* the downgrade block: no code path guesses an older version and continues.
-- **Peer's `proto` is outside the supported version set -> invalid as well.**
-- In the item-by-item comparison, `proto_version` is the **first** item (before `random_len`); a mismatch reports `proto_version mismatch`.
-
-**Session key length floor (1.1.0 policy floor)**: `key_len` must be **>= 256 bits**, and the floor is enforced on **peer-supplied values** too -- an offered 128/192-bit key is judged invalid. This closes the hole where the cleartext-negotiated parameters could be rewritten down to 128 bits.
 
 **Parameter validation rules** (both sides must execute these when constructing and parsing; if any rule is not satisfied the parameters are judged invalid):
 
@@ -1298,7 +1284,7 @@ The following conventions apply to **all four frame types**:
 - **The salt used for derivation is not transmitted with the frame** (it is newly generated locally for each handshake). Therefore **the core protocol has only one peer-side check: `len(nonce) × 8 == the random_len declared by the peer`** — the peer cannot (and does not attempt to) recompute that random number; the verification of "whether it was derived from the correct PSK" is borne indirectly by the confirmation tag (wrong PSK → wrong MK → the tag must be wrong). Statistical-level checks (random number quality enhancement, etc.) are the responsibility of the extension layer.
 - Each side sends its own nonce, and the two nonces are mutually independent.
 
-**Exchange order**: the initiator sends the complete frame first → the responder reads the whole frame, verifies the parameters, and checks the nonce length (plus extension-layer verification, if any) → **only after everything passes** does the responder send back its own frame. Under the default parameters (JSON 136B + identity announcement 64B + nonce 32B), the Phase 1 frame = 4+136+4+64+4+32 = **244 bytes**.
+**Exchange order**: the initiator sends the complete frame first → the responder reads the whole frame, verifies the parameters, and checks the nonce length (plus extension-layer verification, if any) → **only after everything passes** does the responder send back its own frame. Under the default parameters (JSON 120B + identity announcement 64B + nonce 32B), the Phase 1 frame = 4+120+4+64+4+32 = **228 bytes**.
 
 ## F.2 Strict Silent Drop Behavior Specification (Responder-side behavior contract)
 
@@ -1365,7 +1351,7 @@ tag_init = HMAC-SHA3-256(MK, "ZT-DSP-CONFIRM-INIT-v3" ‖ transcript)
 tag_resp = HMAC-SHA3-256(MK, "ZT-DSP-CONFIRM-RESP-v3" ‖ transcript)
 ```
 
-> **The transcript carries the protocol version**: the Phase One frames in the concatenated material carry the mandatory `proto` field (since 1.1.0), so the version is covered by `tag_init` / `tag_resp` -- a peer speaking a different version fails the tags. The Phase Four AAD still carries no version string: the version needs proving once, at handshake time; for data frames the session keys already bind it.
+> **The transcript contains no version or protocol identifier**: there is no version string in the concatenated material. Whether the peer follows the same document is reflected by the `tag_init` / `tag_resp` verification — a mismatch means the tags do not match.
 
 **Exchange sequencing (per the official implementation)**:
 
@@ -1514,7 +1500,7 @@ The implementation must build in the following hard upper bounds; **all upper-bo
 └──────────────┘                              │ Build failure (e.g. after a hook substitution the
         │ Build complete                      │ nonce length is mismatched)
         ▼                                     ▼
-┌──────────────┐  Send phase-one frame (244B+)   [Disconnect + erase keys]
+┌──────────────┐  Send phase-one frame (228B+)   [Disconnect + erase keys]
 │ PHASE1_SENT  │────────────────┐            ▲
 └──────────────┘                │ 15s timeout│
         │ Received              │ peer closed│
