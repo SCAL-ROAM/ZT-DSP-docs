@@ -1,5 +1,10 @@
 # ZT-DSP 协议总指导库（1.0.0）
 
+> **通用化提案（2026-10-14，草案）**
+> 有人提出把 ZT-DSP 从「通讯协议」提升为**通用协议**：核心层只做 PSK 双方认证与密钥协商，与传输、应用无关；
+> 通讯 / 鉴权作为剖面。提案见 [ZT-DSP_draft_Specification.md](ZT-DSP_draft_Specification.md)。
+> **本文件现行有效**，提案未评审、未取代本文件，**目前只有中文版**。
+
 **Zero Trust Dynamic Synchronization Protocol**
 （零信任动态同步协议）
 
