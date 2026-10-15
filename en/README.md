@@ -1,6 +1,6 @@
 # ZT-DSP Protocol Documentation
 
-> The specification for the current protocol. The authoritative text is `en/spec/ZT-DSP_1.0.0_Master_Guide.md` (docs version 1.0.0).
+> The specification for the current protocol. The authoritative text is `en/spec/ZT-DSP-1.0.0-Master_Guide.md` (docs version 1.0.0).
 >
 > **How this repository relates to the implementations**: the specification defines the protocol behaviour and tunable parameters; each implementation declares at its entry point which guide it applies to, and each guide lists the client and server versions it applies to. The relation is **many-to-many**, not bound by version numbers.
 
@@ -17,10 +17,10 @@ ZT-DSP-docs/
 ├─ CITATION.cff              citation metadata
 ├─ _config.yml               GitHub Pages configuration
 ├─ cn/                       Chinese side
-│  ├─ spec/ZT-DSP_1.0.0_总指导.md      the specification (the only current revision)
+│  ├─ spec/ZT-DSP-1.0.0-总指导.md      the specification (the only current revision)
 │  └─ 术语对照表.md                    Chinese-to-English terminology baseline
 ├─ en/                       English side (mirrors cn/ document by document)
-│  ├─ spec/ZT-DSP_1.0.0_Master_Guide.md
+│  ├─ spec/ZT-DSP-1.0.0-Master_Guide.md
 │  └─ Glossary.md
 └─ .github/                  issue forms and the Pages workflow
 ```
@@ -31,8 +31,8 @@ The current revision is **docs 1.0.0**, and it is the **only** specification fil
 
 | File | Content |
 |------|---------|
-| `cn/spec/ZT-DSP_1.0.0_总指导.md` | **Protocol Master Guide** (Chinese side). Book Four core protocol, Appendix B parameters, Appendix C implementation checklist, Appendix F byte-level on-wire specification, Appendix G traffic-defence details, Appendix H state machine and timeout matrix. |
-| `en/spec/ZT-DSP_1.0.0_Master_Guide.md` | The same, on the English side. |
+| `cn/spec/ZT-DSP-1.0.0-总指导.md` | **Protocol Master Guide** (Chinese side). Book Four core protocol, Appendix B parameters, Appendix C implementation checklist, Appendix F byte-level on-wire specification, Appendix G traffic-defence details, Appendix H state machine and timeout matrix. |
+| `en/spec/ZT-DSP-1.0.0-Master_Guide.md` | The same, on the English side. |
 
 ## Bilingual mirroring
 
