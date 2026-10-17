@@ -1,5 +1,13 @@
 # ZT-DSP Protocol Documentation
 
+## 这里有什么
+
+The English specification and the glossary.
+
+## 按什么找
+
+The full map is in the [repository README](../README.md).
+
 > The specification for the current protocol. The authoritative text is `en/spec/ZT-DSP-1.0.0-Master_Guide.md` (docs version 1.0.0).
 >
 > **How this repository relates to the implementations**: the specification defines the protocol behaviour and tunable parameters; each implementation declares at its entry point which guide it applies to, and each guide lists the client and server versions it applies to. The relation is **many-to-many**, not bound by version numbers.
