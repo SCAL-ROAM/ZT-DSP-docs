@@ -61,4 +61,9 @@ This Code of Conduct is adapted from the [Contributor Covenant][homepage], versi
 available at
 https://www.contributor-covenant.org/version/2/1/code_of_conduct.html.
 
+The Contributor Covenant is licensed under the
+[Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).
+This adaptation is distributed under **CC BY 4.0** and is not covered by the
+repository's AGPL-3.0-or-later license.
+
 [homepage]: https://www.contributor-covenant.org
