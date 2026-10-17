@@ -19,10 +19,12 @@ ZT-DSP-docs/
 ├─ _config.yml               GitHub Pages configuration
 ├─ cn/                       Chinese side
 │  ├─ spec/ZT-DSP-1.0.0-总指导.md      the specification (the only current revision)
-│  └─ 术语对照表.md                    Chinese-to-English terminology baseline
+│  ├─ 术语对照表.md                    Chinese-to-English terminology baseline
+│  └─ DEFENSIVE-PUBLICATION.md         defensive publication statement
 ├─ en/                       English side (mirrors cn/ document by document)
 │  ├─ spec/ZT-DSP-1.0.0-Master_Guide.md
-│  └─ Glossary.md
+│  ├─ Glossary.md
+│  └─ DEFENSIVE-PUBLICATION.md
 └─ .github/                  issue forms and the Pages workflow
 ```
 

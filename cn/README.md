@@ -19,10 +19,12 @@ ZT-DSP-docs/
 ├─ _config.yml               GitHub Pages 配置
 ├─ cn/                       中文侧
 │  ├─ spec/ZT-DSP-1.0.0-总指导.md      规范正文（唯一现行版）
-│  └─ 术语对照表.md                     中→英术语基线
+│  ├─ 术语对照表.md                     中→英术语基线
+│  └─ DEFENSIVE-PUBLICATION.md          防御性公开声明
 ├─ en/                       英文侧（与 cn/ 逐份对应）
 │  ├─ spec/ZT-DSP-1.0.0-Master_Guide.md
-│  └─ Glossary.md
+│  ├─ Glossary.md
+│  └─ DEFENSIVE-PUBLICATION.md
 └─ .github/                  议题表单与 Pages 工作流
 ```
 
