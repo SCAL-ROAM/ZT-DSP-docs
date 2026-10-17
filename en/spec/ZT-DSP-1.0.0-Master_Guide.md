@@ -1871,7 +1871,7 @@ This appendix marks the places where an earlier patent would be most likely to b
 | # | Construct | Defined in | Why it is exposed | Prior art worth checking |
 |---|---|---|---|---|
 | 1 | Four-phase handshake with identity announcement and parameter negotiation | 4.1, 4.2, F.1 | Handshake state machines are heavily patented in secure messaging | TLS 1.3 handshake; Noise Protocol Framework |
-| 2 | Per-packet key ratcheting driven by a seed chain | 4.2, F.5 | Ratchet constructions are patented; see K.4 for a live example | Signal Double Ratchet specification (2016) |
+| 2 | Per-packet key advance: each packet carries a 32-byte seed and the receiver derives the next key with HKDF | 4.2.5, F.5 | Ratchet and key-schedule constructions are patented; see K.4 for a live example | Signal Double Ratchet (2016) covers ratcheting key schedules in general, but the structure differs — this protocol has no DH-ratchet step, so a direct comparison does not hold |
 | 3 | Silent drop on parameter mismatch or authentication failure | 4.3, F.2 | Uniform-failure behaviour appears in security patents | Long-standing silent-drop practice in network protocols |
 | 4 | Random padding encoding and pad intervals | G.2, F.5 | Traffic-shaping and padding schemes are patented | Mix-net padding literature; Tor cell padding |
 | 5 | Transmission timing jitter | G.3 | Timing obfuscation is a common patent subject | Mix-net timing literature |

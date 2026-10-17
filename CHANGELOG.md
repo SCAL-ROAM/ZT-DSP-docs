@@ -19,6 +19,21 @@ stay in step and that CI itself remains runnable; see the pull request checklist
 - `CHANGELOG.md`, `CODE_OF_CONDUCT.md`, a pull request template, and `dependabot.yml`
   for GitHub Actions.
 
+### Planned — not part of 1.0.0
+
+Recorded so the intent is not lost. **None of this is implemented in 1.0.0**, and
+1.0.0 remains authoritative until a later revision ships these:
+
+- Time-slot driven rotation: one key generation per second rather than per packet.
+- Lock packet: the same packet structure, sent on a fixed cadence so the chain keeps
+  advancing when there is no message.
+- Fragmented key material: the next generation carried as fragments across several
+  packets and recoverable from a threshold of them.
+- Loss tolerance of 30 slots before the session is declared dead.
+
+The 1.0.0 behaviour is the opposite of the third and fourth items: a single lost packet
+leaves the session irreversibly out of step and the only recovery is to reconnect.
+
 
 ## [1.0.0]
 
