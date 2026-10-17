@@ -37,4 +37,4 @@
 
 ## 许可
 
-本项目同时以 **MIT** 与 **Apache-2.0** 授权，使用方可任选其一（不是"同时满足两者"）。详见 `LICENSE`、`LICENSE-MIT`、`LICENSE-APACHE`。
+本仓库的规范正文以 **CC BY-SA 4.0**（署名—相同方式共享）授权：照规范写实现不受限制，引用与翻译须署名，改过的规范必须同样开放。详见 [LICENSING.md](LICENSING.md) 与 [LICENSE](LICENSE)。

@@ -10,9 +10,7 @@ authors:
   - name: "ZT-DSP Suite maintainers"
 version: "1.0.0"
 date-released: "2026-10-11"
-license:
-  - MIT
-  - Apache-2.0
+license: CC-BY-SA-4.0
 keywords:
   - protocol
   - specification

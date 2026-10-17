@@ -16,8 +16,8 @@ exclude:
   - SECURITY.md
   - CITATION.cff
   - LICENSE
-  - LICENSE-MIT
-  - LICENSE-APACHE
+  - LICENSING.md
+  - CONTRIBUTING.md
   - .gitignore
   - .gitattributes
   - vendor/

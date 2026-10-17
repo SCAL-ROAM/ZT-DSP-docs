@@ -11,8 +11,9 @@
 ```
 ZT-DSP-docs/
 ├─ README.md                 本索引
-├─ LICENSE                   双许可索引：MIT OR Apache-2.0
-├─ LICENSE-MIT / LICENSE-APACHE
+├─ LICENSE                   CC BY-SA 4.0 全文
+├─ LICENSING.md              许可范围、署名与商标说明
+├─ CONTRIBUTING.md           贡献者许可协议
 ├─ SECURITY.md               安全策略与漏洞上报
 ├─ CITATION.cff              引用元数据
 ├─ _config.yml               GitHub Pages 配置
@@ -72,4 +73,4 @@ ZT-DSP-docs/
 
 ## 许可
 
-本项目同时以 **MIT** 与 **Apache-2.0** 授权，使用方可任选其一（不是"同时满足两者"）。详见 `LICENSE`、`LICENSE-MIT`、`LICENSE-APACHE`。
+本仓库的规范正文以 **CC BY-SA 4.0**（署名—相同方式共享）授权。详见 [LICENSING.md](../LICENSING.md) 与 [LICENSE](../LICENSE)。

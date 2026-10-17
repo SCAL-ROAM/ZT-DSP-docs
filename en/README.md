@@ -11,8 +11,9 @@ This repository carries **documentation only**; the official implementations and
 ```
 ZT-DSP-docs/
 ├─ README.md                 this index
-├─ LICENSE                   dual-licence index: MIT OR Apache-2.0
-├─ LICENSE-MIT / LICENSE-APACHE
+├─ LICENSE                   full text of CC BY-SA 4.0
+├─ LICENSING.md              license scope, attribution and trademarks
+├─ CONTRIBUTING.md           contributor license agreement
 ├─ SECURITY.md               security policy and vulnerability reporting
 ├─ CITATION.cff              citation metadata
 ├─ _config.yml               GitHub Pages configuration
@@ -72,4 +73,4 @@ The project has **three kinds of version number** and one **two-way declaration*
 
 ## Licence
 
-This project is licensed under **MIT** and **Apache-2.0**; a user may choose either one (not "both at once"). See `LICENSE`, `LICENSE-MIT` and `LICENSE-APACHE`.
+The specification text in this repository is licensed under **CC BY-SA 4.0**. See [LICENSING.md](../LICENSING.md) and [LICENSE](../LICENSE).
