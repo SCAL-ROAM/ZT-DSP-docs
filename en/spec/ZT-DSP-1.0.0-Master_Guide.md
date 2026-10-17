@@ -112,6 +112,12 @@ This document is aimed at three kinds of readers:
 
 **Appendix H**: State Machines, Timeouts, and Error Handling Matrix
 
+**Appendix I**: Registry of Parameters, Frames and Timers
+
+**Appendix J**: Conformance Vectors and Implementation Identifiers
+
+**Appendix K**: Patent Exposure Inventory
+
 # Part 0: Document Status, Terminology and Conformance
 
 ## 0.1 Document status
@@ -147,7 +153,7 @@ A sentence that uses none of these terms is descriptive and imposes no requireme
 
 | Level | Condition |
 |---|---|
-| **Conformant** | Passes every item in Appendix C.1 and matches the byte layout of Appendix F exactly |
+| **Conformant** | Passes every item in Appendix C.1, matches every vector in Appendix J exactly, and matches the byte layout of Appendix F |
 | **Partially conformant** | Implements a subset of Volume 4. The declaration must list every MUST it does not implement |
 | **Not conformant** | Fails Appendix C.1, or deviates from Appendix F at the byte level |
 
@@ -163,6 +169,9 @@ A claim of conformance to ZT-DSP 1.0.0 must carry an implementation identifier. 
 | Parameter values in Appendix B | Informative | All are free to change |
 | "Both sides must use the same parameters" in Appendix B | **Normative** | Values are free, but the two ends must agree |
 | Appendix C | Informative | The checklist used by 0.3; adds no requirement of its own |
+| Appendix I | Informative | Index of parameters, frames and timers; values still come from B.1 and F.6 |
+| Appendix J | Informative | Source of the conformance vectors and the implementation identifier rules |
+| Appendix K | Informative | Patent exposure inventory; imposes no requirement |
 
 ---
 # Volume 1: Core Ideas and Design Principles
@@ -1760,3 +1769,128 @@ ZTDSPError (protocol exception base class)
 - **Send failure during the data phase** → the keys have already rolled forward (F.5), and the session is **irreversibly desynchronized**: clean up and require reconnection. The peer object is single-use — reconnection must create a new Peer and provide the PSK again (after a successful handshake the PSK has been erased per protocol, so the old object cannot be reused).
 - **Security error on the receive side during the data phase** → session termination + complete cleanup; a security event may optionally be reported to the upper layer for auditing (but note the no-logging principle in Volume 5 — local auditing and external records are two different things).
 - **Cleanup must be idempotent**: the three threads for sending, receiving, and heartbeats may each be the first to discover that the session is dead, and the cleanup logic must guarantee that "the socket is closed exactly once, the keys are erased exactly once, and the final notification is triggered exactly once"; otherwise a long-running server will accumulate half-open sockets (file descriptor leaks) and residual keys.
+
+# Appendix I: Registry of Parameters, Frames and Timers
+
+This appendix is an **index, not a second source of truth**. Values live in Appendix B.1 and Appendix F.6. This appendix records names and locations only, so that an implementation can check its configuration surface against one list. If this appendix and a referenced section ever disagree, the referenced section wins.
+
+## I.1 Parameters an implementation must accept or expose
+
+| Parameter | Defined in | Note |
+|---|---|---|
+| Length and rate of `random` padding | B.1 | Both free to change; both ends MUST agree |
+| Timestamp `window` | B.1 | Verification threshold, see also F.5 step 8 |
+| `time_window` | B.1 | Tolerance for clock drift |
+| `hash` | B.1 | Selects SHA-2 or SHA-3 family |
+| AEAD selection | B.1 | AES-GCM and ChaCha20-Poly1305 in this revision |
+| KEX group | B.1 | X25519 in this revision |
+| KDF parameters | B.1 | HKDF, see RFC 5869 |
+| Token signature algorithm | B.1 | Ed25519 in this revision |
+| PSK | B.1 | Present in the minimal release; erased on success |
+| Listening port | B.1 | Default only |
+| Handshake, data-phase and heartbeat timings | H.3 | See I.3 |
+
+Every parameter that must match between peers is a **normative** requirement even though its value is informative: the value is free, the agreement is not.
+
+## I.2 Frames
+
+| Phase | Frame | Defined in |
+|---|---|---|
+| 1 | Identity announcement and parameter exchange | F.1 |
+| 1 | Parameter mismatch handling (silent drop) | F.2 |
+| 2 | Ephemeral public key and session salt exchange | F.3 |
+| 3 | Confirmation tag exchange | F.4 |
+| 4 | Data packet | F.5 |
+
+## I.3 Timers
+
+| Timer | Defined in |
+|---|---|
+| Handshake timeout | H.3 |
+| Total read deadline (Slowloris protection) | H.3 |
+| Half-packet timeout | H.3 |
+| Data-phase timeout | H.3 |
+| Heartbeat interval | H.3 |
+| Silent suspension duration | H.3 |
+| Waiting-pool timeout (server side) | H.3 |
+| Timestamp window | H.3 |
+
+## I.4 Hard upper bounds
+
+Every hard upper bound is stated in **F.6**. An implementation MUST enforce each one before reading the corresponding payload. This appendix deliberately does not repeat the numbers: repeating them is how they drift apart.
+
+# Appendix J: Conformance Vectors and Implementation Identifiers
+
+## J.1 Where the vectors live
+
+`test-vectors/vectors.json` in the `ZT-DSP-client` repository. Nine vectors: four reproduced from RFC 5869 Appendix A.1 and A.3 and RFC 7748 section 6.1, five generated by `test-vectors/generate_vectors.py`.
+
+## J.2 Format
+
+The file is a JSON object carrying `schema`, `note`, `labels` and `vectors`. Each vector carries `name`, `kind`, `why`, and the inputs and expected output belonging to its `kind`.
+
+## J.3 How the vectors bind
+
+- An implementation is conformant only if **every** vector matches exactly.
+- A partially conformant implementation MUST state which vectors it does not cover.
+- Adding a vector in a later revision is allowed. Removing or altering an existing vector is a protocol change, not an editorial one.
+
+## J.4 Implementation identifiers
+
+Format: `<LANGUAGE>_<version>`, for example `ZT-DSP_PY-1.0.0`.
+
+- The language token is uppercase ASCII; the separator is a single underscore.
+- The version is the version of **this document** that the implementation targets, not the implementation's own release number.
+- An implementation MUST report its identifier from its `--version` output, in the form `<identifier> (docs <document version>)`.
+
+## J.5 Registry
+
+| Identifier | Scope |
+|---|---|
+| `ZT-DSP_PY-1.0.0` | Core protocol, Volume 4. Extension modules are not implemented |
+| `ZT-DSP_RS-1.0.0` | Core protocol, Volume 4. Extension modules are not implemented |
+
+A new implementation is added to this table by a pull request to this repository. An identifier that is not in this table may still be conformant, but a claim of conformance that omits the identifier does not stand — see Part 0, section 0.3.
+
+# Appendix K: Patent Exposure Inventory
+
+## K.1 What this appendix is, and is not
+
+It is an inventory of **technical constructs that could fall inside someone else's patent claim**. It is not legal advice, not a search report, and says nothing about whether any patent is valid, enforceable or infringed.
+
+Descriptive vocabulary is deliberately excluded. Words, names, categories and explanatory analogies cannot be patented. What is listed is **behaviour and mechanism**.
+
+## K.2 Why it exists
+
+This project does not patent the protocol; see `DEFENSIVE-PUBLICATION.md`. Defensive publication creates prior art, and prior art only defeats patents whose filing date falls **after** the publication date. It does nothing about patents filed earlier.
+
+This appendix marks the places where an earlier patent would be most likely to bite, so that a freedom-to-operate search knows where to look. It is a map of where to dig, not a finding.
+
+## K.3 Inventory
+
+| # | Construct | Defined in | Why it is exposed | Prior art worth checking |
+|---|---|---|---|---|
+| 1 | Four-phase handshake with identity announcement and parameter negotiation | 4.1, 4.2, F.1 | Handshake state machines are heavily patented in secure messaging | TLS 1.3 handshake; Noise Protocol Framework |
+| 2 | Per-packet key ratcheting driven by a seed chain | 4.2, F.5 | Ratchet constructions are patented; see K.4 for a live example | Signal Double Ratchet specification (2016) |
+| 3 | Silent drop on parameter mismatch or authentication failure | 4.3, F.2 | Uniform-failure behaviour appears in security patents | Long-standing silent-drop practice in network protocols |
+| 4 | Random padding encoding and pad intervals | G.2, F.5 | Traffic-shaping and padding schemes are patented | Mix-net padding literature; Tor cell padding |
+| 5 | Transmission timing jitter | G.3 | Timing obfuscation is a common patent subject | Mix-net timing literature |
+| 6 | Timestamp window and replay suppression | G.4, F.5 | Replay windows are old art, which cuts both ways | IPsec anti-replay window |
+| 7 | Heartbeat as baseline traffic that participates in ratcheting | G.5, H.3 | Keepalive tied to key rotation | Generic keepalive art |
+| 8 | Virtual rooms, sub-channels and hopping | 4.1, Q7–Q9 | Multiplexing with rotation | Generic multiplexing art |
+
+## K.4 One known example
+
+**US10412063B1**, "End-to-end double-ratchet encryption with epoch key exchange", assignee Qrypt Inc, priority date 2019-02-05, active with an anticipated expiry of 2039-02-05. It is a **United States** patent; patents are territorial, so acts outside the United States are not governed by it, while import or use inside the United States may be.
+
+Its priority date is later than the public Signal Double Ratchet specification of 2016, which is therefore candidate prior art against it.
+
+This is the only patent the maintainers have examined. Its inclusion here is not an assertion that it reads on this protocol.
+
+## K.5 Limits of this appendix
+
+- No search has been run in the PRC, the EPO, or any other jurisdiction.
+- No claim chart has been prepared against any patent, including the one in K.4.
+- The list in K.3 is derived from the structure of this document, not from a patent database.
+
+Before any release that markets conformance, this appendix MUST be re-checked by a patent professional for the jurisdictions the release targets.
