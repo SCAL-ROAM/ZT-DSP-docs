@@ -24,9 +24,48 @@
 
 新增或修改文档时，两侧必须同步；**只改一侧视为缺陷，不视为贡献**。
 
-## 从哪里开始
+## 文档地图
 
-- 想读协议规范 → `cn/spec/ZT-DSP-1.0.0-总指导.md` ／ `en/spec/ZT-DSP-1.0.0-Master_Guide.md`
+按你要做的事找文件。
+
+### 我要照规范写实现
+
+- 规范正文：[中文](cn/spec/ZT-DSP-1.0.0-总指导.md) ／ [English](en/spec/ZT-DSP-1.0.0-Master_Guide.md)
+- 术语基线：[术语对照表](cn/术语对照表.md) ／ [Glossary](en/Glossary.md)
+- 自查清单：规范附录 C.1
+- 上手步骤：[开发与验证指南](cn/DEV-GUIDE.md) ／ [Dev guide](en/DEV-GUIDE.md)
+
+### 我要审计别人的实现
+
+- [符合性判定指南](cn/CONFORMANCE-GUIDE.md) ／ [Conformance guide](en/CONFORMANCE-GUIDE.md)
+- [LICENSING.md](LICENSING.md) · [NOTICE](NOTICE) · [TRADEMARK.md](TRADEMARK.md)
+- [防御性公开声明](cn/DEFENSIVE-PUBLICATION.md) ／ [Defensive publication](en/DEFENSIVE-PUBLICATION.md)
+- [SECURITY.md](SECURITY.md)
+
+### 我要参与开发
+
+- [开发与验证指南](cn/DEV-GUIDE.md) ／ [Dev guide](en/DEV-GUIDE.md)
+- [CONTRIBUTING.md](CONTRIBUTING.md) · [CONTRIBUTORS.md](CONTRIBUTORS.md)
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) · [CHANGELOG.md](CHANGELOG.md)
+
+### 我只想知道这是什么
+
+- 中文入口：[cn/README.md](cn/README.md)
+- 英文入口：[en/README.md](en/README.md)
+- [防御性公开声明](cn/DEFENSIVE-PUBLICATION.md) · [LICENSING.md](LICENSING.md)
+
+### 我是下游集成方
+
+- 参数与上限：规范附录 B、附录 I
+- [符合性判定指南](cn/CONFORMANCE-GUIDE.md) ／ [Conformance guide](en/CONFORMANCE-GUIDE.md)
+- [开发与验证指南](cn/DEV-GUIDE.md) ／ [Dev guide](en/DEV-GUIDE.md)
+
+### 我是监管或评估方
+
+- [符合性判定指南](cn/CONFORMANCE-GUIDE.md) 第 A.6 节：判定范围到哪为止
+- [防御性公开声明](cn/DEFENSIVE-PUBLICATION.md) ／ [Defensive publication](en/DEFENSIVE-PUBLICATION.md)
+- [TRADEMARK.md](TRADEMARK.md)
+
 
 ## 相关仓库
 

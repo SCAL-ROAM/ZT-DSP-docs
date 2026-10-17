@@ -6,6 +6,8 @@
 
 This repository carries **documentation only**; the official implementations and runtime code live in the separate `ZT-DSP-client` repository.
 
+> The full document map, grouped by what you want to do, is in the [repository README](../README.md).
+
 ## Layout
 
 ```
