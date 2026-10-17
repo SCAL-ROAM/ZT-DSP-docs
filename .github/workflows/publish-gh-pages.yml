@@ -1,16 +1,17 @@
 # Publish the documentation set to GitHub Pages through a dedicated gh-pages branch.
 #
 # The gh-pages branch is DERIVED: never edit it by hand. This workflow rebuilds it from main
-# on every push, so the branch cannot drift away from the source. Markdown is rendered by
+# whenever it is run, so the branch cannot drift away from the source. Markdown is rendered by
 # GitHub Pages' own Jekyll step, which is why no build tool is pinned here.
 #
-# One-time setup after the first push:
+# This workflow is manual only. A push no longer rebuilds the branch, so ordinary
+# commits do not create a derived branch on every push.
+#
+# One-time setup when you first want the site:
 #   Settings -> Pages -> Source = "Deploy from a branch" -> gh-pages / (root)
 name: Publish Pages branch
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
