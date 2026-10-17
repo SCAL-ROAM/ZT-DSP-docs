@@ -2,7 +2,7 @@
 
 > Purpose: every English document and every code comment in this project must use the English wording given here, so that terminology stays consistent throughout.
 > Status: this file is the **single authoritative source** of terminology and depends on no other document.
-> Entries: 123. Register new terms here before using them.
+> Entries: 124. Register new terms here before using them.
 
 | English | Chinese | Note |
 |---|---|---|
@@ -11,8 +11,8 @@
 | CLOSE_WAIT | CLOSE_WAIT 状态 | one specific TCP connection state |
 | Side-Channel Attack | 侧信道攻击 |  |
 | Continuous Locking | 持续锁定 |  |
-| Big-Endian (Network Byte Order) | 大端序 |  |
-| Big-Endian (Byte Order) | 大端字节序 |  |
+| Big-Endian | 大端序 | full form: Network Byte Order |
+| Big-Endian | 大端字节序 | full form: Byte Order |
 | Out-of-Band Exchange | 带外交换 |  |
 | Dynamic Synchronization | 动态同步 |  |
 | End-to-End Encryption | 端到端加密 |  |
@@ -37,18 +37,19 @@
 | Anchor | 锚点 |  |
 | Key Pair | 密钥对 |  |
 | Fuzzing | 模糊测试 |  |
-| OOM (Out of Memory) | 内存耗尽 |  |
+| OOM | 内存耗尽 | full form: Out of Memory |
 | Forward Secrecy | 前向安全 |  |
 | Authentication Tag | 认证标签 |  |
 | Container | 容器 |  |
 | Sandbox | 沙箱 |  |
-| Triple-Input Formula (PSK ‖ DH ‖ session_salt) | 三元公式 |  |
+| Triple-Input Formula | 三元公式 | full form: PSK ‖ DH ‖ session_salt |
 | Entropy | 熵 |  |
 | Authorization Code | 授权码 |  |
 | Digital Signature | 数字签名 |  |
 | Rate Limiting | 速率限制 |  |
 | Socket Options | 套接字选项 | for example SO_REUSEADDR, SO_EXCLUSIVEADDRUSE, SO_KEEPALIVE |
-| File Descriptor (FD) and EMFILE | 文件描述符与 EMFILE |  |
+| File Descriptor | 文件描述符 | abbreviated FD |
+| EMFILE | EMFILE | file descriptor exhaustion error |
 | Handshake | 握手 |  |
 | Heartbeat | 心跳 |  |
 | Virtual Room | 虚拟房间 |  |
@@ -88,7 +89,7 @@
 | HyperText Transfer Protocol Secure | HTTPS |  |
 | Hardware Identifier | HWID |  |
 | I/O Multiplexing | I/O 多路复用 | for example selector, epoll, kqueue |
-| IP Address (Internet Protocol Address) | IP 地址 |  |
+| IP Address | IP 地址 | full form: Internet Protocol Address |
 | Initialization Vector | 初始化向量 | also called Nonce in the GCM context |
 | JavaScript Object Notation | JSON |  |
 | Kerckhoffs's Principle | Kerckhoffs 原则 |  |
@@ -104,22 +105,22 @@
 | Pseudo-Random Function | PRF |  |
 | Pre-Shared Key | PSK |  |
 | root | root |  |
-| SHA-3-256 (Secure Hash Algorithm 3, 256-bit) | SHA-3-256 |  |
+| SHA-3-256 | SHA-3-256 | full form: Secure Hash Algorithm 3, 256-bit |
 | Slowloris Attack | Slowloris 攻击 |  |
 | Socket | Socket |  |
 | Subpoena | Subpoena |  |
 | Sybil Attack | Sybil 攻击 |  |
 | Token Certification Authority | TCA |  |
-| TLS 1.3 (Transport Layer Security 1.3) | TLS 1.3 |  |
+| TLS 1.3 | TLS 1.3 | full form: Transport Layer Security 1.3 |
 | Token | Token |  |
 | Trusted Platform Module | TPM |  |
-| transcript (Handshake Transcript) | transcript |  |
+| transcript | transcript | full form: Handshake Transcript |
 | True Random Number Generator | TRNG |  |
 | Time To Live | TTL |  |
 | Virtual Private Network | VPN |  |
 | Virtual Private Server | VPS |  |
 | WireGuard | WireGuard |  |
-| X25519 (Curve25519 Key Exchange) | X25519 |  |
+| X25519 | X25519 | full form: Curve25519 Key Exchange |
 | YAML Ain't Markup Language | YAML |  |
 | Nonce | 接入随机数 | carried in Phase 1; the length is set by the parameter random_len, a frozen field name |
 | Access Salt | 接入盐 | generated locally, never transmitted with the frame |
