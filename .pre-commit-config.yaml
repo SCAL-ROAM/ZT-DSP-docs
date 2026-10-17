@@ -2,8 +2,8 @@ repos:
   - repo: local
     hooks:
       - id: zt-dsp-self-check
-        name: ZT-DSP self-check (repo-local; skipped when absent)
-        entry: bash -c 'if [ -f scripts/self-check.sh ]; then bash scripts/self-check.sh; else echo "no scripts/self-check.sh in this repository; skipping"; fi'
+        name: ZT-DSP self-check (repo-local; fails on a broken tree)
+        entry: bash scripts/check.sh
         language: system
         pass_filenames: false
         always_run: true
