@@ -792,7 +792,7 @@ AAD (Additional Authenticated Data)
 
 > [Privacy Risk] Although the payload is encrypted, **traffic patterns can still leak information**: packet size (already mitigated by padding), sending frequency, session duration, and connection relationships (the server still knows that "session IDs X and Y are communicating"). This is why the protocol emphasizes random padding + timing jitter (Section 5.4).
 >
-> [Protection Recommendations] (1) Use random padding (512~2048B) to flatten the length fingerprint; (2) enable send timing jitter in high-security scenarios (Appendix G.3); (3) rotate the session ID periodically (via continuous-locking hops) to shorten the correlatable window.
+> [Protection Recommendations] (1) Use random padding (512~2048B) to flatten the length fingerprint; (2) enable send timing jitter in high-security scenarios (Appendix G.3); (3) the session ID is derived from the fixed MK and stays constant for the whole session; it cannot be rotated in-session -- a new session ID requires a new handshake.
 >
 > [Compliance Note] Under end-to-end encryption (E2EE), the server never touches plaintext, which is itself the strongest privacy protection practice. But operators should still follow the metadata minimization principle: do not record correlatable data such as session duration or traffic volume.
 
@@ -982,9 +982,9 @@ Traffic Analysis
 
 Under the layered attacks (nine-layer threat) above, ZT-DSP can guarantee:
 
-- **Guaranteed** — **Confidentiality**: the attacker cannot decrypt communication content (unless the PSK is leaked)
+- **Guaranteed** — **Confidentiality**: the attacker cannot decrypt communication content (unless the PSK is leaked, or the EK currently in use at either endpoint together with that packet's next_seed is captured -- the rotation chain has no DH step, so one captured packet key yields every key after it)
 - **Guaranteed** — **Integrity**: the attacker cannot tamper with data without being detected
-- **Conditional** — **Availability**: under extreme attacks, communication may be interrupted
+- **Conditional** — **Availability**: under extreme attacks, communication may be interrupted; and within a session, any lost or reordered data packet makes the receiver treat it as a replay under 5.2, wipe all session keys and terminate the session, requiring a new handshake -- the protocol offers no loss tolerance
 - **Not guaranteed** — **Anonymity (absolute)**: if an attacker monitors globally and correlates multiple carriers, anonymity may be reduced
 **Absolute security does not exist.** The goal of ZT-DSP is: unbreakable at the cryptographic level, as resilient as possible at the engineering level (resilient, i.e. the ability to recover and survive in a degraded state after being attacked), and to maintain a minimum level of survival in extreme scenarios.
 

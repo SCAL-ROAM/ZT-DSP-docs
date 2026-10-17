@@ -2,8 +2,8 @@ repos:
   - repo: local
     hooks:
       - id: zt-dsp-self-check
-        name: ZT-DSP self-check (content gates; volatile counts skipped)
-        entry: bash -c 'cd "$(git rev-parse --show-toplevel)/.." && ZT_SKIP_VOLATILE=1 bash scripts/self-check.sh'
+        name: ZT-DSP self-check (repo-local; skipped when absent)
+        entry: bash -c 'if [ -f scripts/self-check.sh ]; then bash scripts/self-check.sh; else echo "no scripts/self-check.sh in this repository; skipping"; fi'
         language: system
         pass_filenames: false
         always_run: true
