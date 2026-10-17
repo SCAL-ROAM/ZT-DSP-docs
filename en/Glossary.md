@@ -2,29 +2,28 @@
 
 > Purpose: every English document and every code comment in this project must use the English wording given here, so that terminology stays consistent throughout.
 > Status: this file is the **single authoritative source** of terminology and depends on no other document.
-> Entries: 124. Register new terms here before using them.
+> Entries: 123. Register new terms here before using them.
 
 | English | Chinese | Note |
 |---|---|---|
-| Secure Zeroization | 安全擦除 | also written Secure Wipe |
-| Half-open Connection | 半开连接 | a connection whose peer has disappeared without the local side noticing |
-| CLOSE_WAIT | CLOSE_WAIT 状态 | one specific TCP connection state |
+| Secure Zeroization | 安全擦除 | 亦作 Secure Wipe |
+| Half-open Connection | 半开连接 | 对端已消失而本端未察觉的连接形态 |
+| CLOSE_WAIT | CLOSE_WAIT 状态 | TCP 连接的一个具体状态 |
 | Side-Channel Attack | 侧信道攻击 |  |
 | Continuous Locking | 持续锁定 |  |
-| Big-Endian | 大端序 | full form: Network Byte Order |
 | Big-Endian | 大端字节序 | full form: Byte Order |
 | Out-of-Band Exchange | 带外交换 |  |
 | Dynamic Synchronization | 动态同步 |  |
 | End-to-End Encryption | 端到端加密 |  |
 | Symmetric Encryption | 对称加密 |  |
 | Supply Chain Attack | 供应链攻击 |  |
-| Hook | 钩子 | mounting an extension module is called Extension Mounting |
+| Hook | 钩子 | 挂载扩展模块的动作称 Extension Mounting |
 | Hash | 哈希 |  |
 | Constant-time Comparison | 恒定时间比较 |  |
 | Regression Testing | 回归测试 |  |
-| Session Key | 会话密钥 | abbreviated EK (Encryption Key); the encryption key currently in effect |
-| Session Salt | 会话盐 | wire field name session_salt, frozen and never renamed |
-| Ratchet | 棘轮 | here: the mechanism that advances the key once per packet. Structurally different from the Signal Double Ratchet, which has a DH-ratchet step this protocol does not |
+| Session Key | 会话密钥 | 缩写 EK（Encryption Key），指当前生效的加密密钥 |
+| Session Salt | 会话盐 | 线上字段名 session_salt（冻结，不改） |
+| Ratchet | 棘轮 | 本协议专指逐包推进密钥的机制。与 Signal 双棘轮结构不同：本协议没有 DH 棘轮步 |
 | Race Condition | 竞态条件 |  |
 | Silent Drop | 静默丢弃 |  |
 | Static Taint Analysis | 静态污点分析 |  |
@@ -33,7 +32,7 @@
 | Traffic Analysis | 流量分析 |  |
 | Path Traversal | 路径穿越 |  |
 | Tainted Path | 路径污点 |  |
-| Memory-Hard Function | 内存困难函数 | common algorithms: Argon2id, scrypt, Password Hashing |
+| Memory-Hard Function | 内存困难函数 | 常见算法 Argon2id、scrypt、Password Hashing |
 | Anchor | 锚点 |  |
 | Key Pair | 密钥对 |  |
 | Fuzzing | 模糊测试 |  |
@@ -47,27 +46,27 @@
 | Authorization Code | 授权码 |  |
 | Digital Signature | 数字签名 |  |
 | Rate Limiting | 速率限制 |  |
-| Socket Options | 套接字选项 | for example SO_REUSEADDR, SO_EXCLUSIVEADDRUSE, SO_KEEPALIVE |
-| File Descriptor | 文件描述符 | abbreviated FD |
-| EMFILE | EMFILE | file descriptor exhaustion error |
+| Socket Options | 套接字选项 | 例如 SO_REUSEADDR、SO_EXCLUSIVEADDRUSE、SO_KEEPALIVE |
+| File Descriptor | 文件描述符 | 缩写 FD |
+| EMFILE | EMFILE | 文件描述符耗尽错误 |
 | Handshake | 握手 |  |
 | Heartbeat | 心跳 |  |
 | Virtual Room | 虚拟房间 |  |
 | Sequence Number | 序列号 |  |
 | Steganography | 隐写术 |  |
 | Metadata | 元数据 |  |
-| Sticky Packet | 粘包 | the remedy is framing |
-| Split Packet | 拆包 | the remedy is framing |
+| Sticky Packet | 粘包 | 对策为帧界定（Framing） |
+| Split Packet | 拆包 | 对策为帧界定（Framing） |
 | Length Prefix | 长度前缀 |  |
 | Replay Attack | 重放攻击 |  |
-| Master Key | 主密钥 | abbreviated MK |
+| Master Key | 主密钥 | 缩写 MK |
 | Sub-channel | 子频道 |  |
 | Principle of Least Privilege | 最小权限原则 |  |
 | Additional Authenticated Data | AAD |  |
-| Authenticated Encryption with Associated Data | AEAD |  |
+| AEAD | AEAD | full form: Authenticated Encryption with Associated Data |
 | AES-256-GCM | AES-256-GCM | Advanced Encryption Standard 256 + Galois/Counter Mode |
-| Byte Order Mark | 字节顺序标记 | abbreviated BOM |
-| Character Encoding | 字符编码 | for example UTF-8, GBK |
+| Byte Order Mark | 字节顺序标记 | 缩写 BOM |
+| Character Encoding | 字符编码 | 例如 UTF-8、GBK |
 | ChaCha20-Poly1305 | ChaCha20-Poly1305 |  |
 | Cyclic Redundancy Check | CRC-16 |  |
 | Certificate Revocation List | CRL |  |
@@ -75,31 +74,31 @@
 | Diffie-Hellman | DH |  |
 | Domain Name System | DNS |  |
 | Docker | Docker |  |
-| Denial of Service | DoS |  |
-| Distributed Denial of Service | DDoS |  |
+| DoS | DoS | full form: Denial of Service |
+| DDoS | DDoS | full form: Distributed Denial of Service |
 | Deep Packet Inspection | DPI |  |
-| Elliptic Curve Diffie-Hellman | ECDH |  |
+| ECDH | ECDH | full form: Elliptic Curve Diffie-Hellman |
 | Ed25519 | Ed25519 |  |
-| fail-open | fail-open | allow on failure |
-| fail-closed | fail-closed | deny on failure |
+| fail-open | fail-open | 失败时放行 |
+| fail-closed | fail-closed | 失败时拒绝 |
 | Firewall | Firewall |  |
-| HMAC-based Key Derivation Function | HKDF |  |
-| Hash-based Message Authentication Code | HMAC |  |
-| HyperText Transfer Protocol | HTTP |  |
-| HyperText Transfer Protocol Secure | HTTPS |  |
+| HKDF | HKDF | full form: HMAC-based Key Derivation Function |
+| HMAC | HMAC | full form: Hash-based Message Authentication Code |
+| HTTP | HTTP | full form: HyperText Transfer Protocol |
+| HTTPS | HTTPS | full form: HyperText Transfer Protocol Secure |
 | Hardware Identifier | HWID |  |
-| I/O Multiplexing | I/O 多路复用 | for example selector, epoll, kqueue |
+| I/O Multiplexing | I/O 多路复用 | 例如 selector、epoll、kqueue |
 | IP Address | IP 地址 | full form: Internet Protocol Address |
-| Initialization Vector | 初始化向量 | also called Nonce in the GCM context |
-| JavaScript Object Notation | JSON |  |
+| Initialization Vector | 初始化向量 | 在 GCM 语境中又称 Nonce |
+| JSON | JSON | full form: JavaScript Object Notation |
 | Kerckhoffs's Principle | Kerckhoffs 原则 |  |
 | LoRa | LoRa |  |
-| Bluetooth Low Energy | BLE | abbreviated BLE |
+| Bluetooth Low Energy | BLE | 缩写 BLE |
 | Least Significant Bit | LSB |  |
 | Man-In-The-Middle | MITM |  |
 | Nagle's Algorithm and TCP_NODELAY | Nagle 算法与 TCP_NODELAY |  |
-| Operations Security | OPSEC |  |
-| Peer-to-Peer | P2P |  |
+| OPSEC | OPSEC | full form: Operations Security |
+| P2P | P2P | full form: Peer-to-Peer |
 | Proof of Concept | PoC |  |
 | Proof of Work | PoW |  |
 | Pseudo-Random Function | PRF |  |
@@ -117,19 +116,19 @@
 | transcript | transcript | full form: Handshake Transcript |
 | True Random Number Generator | TRNG |  |
 | Time To Live | TTL |  |
-| Virtual Private Network | VPN |  |
+| VPN | VPN | full form: Virtual Private Network |
 | Virtual Private Server | VPS |  |
 | WireGuard | WireGuard |  |
 | X25519 | X25519 | full form: Curve25519 Key Exchange |
 | YAML Ain't Markup Language | YAML |  |
-| Nonce | 接入随机数 | carried in Phase 1; the length is set by the parameter random_len, a frozen field name |
-| Access Salt | 接入盐 | generated locally, never transmitted with the frame |
-| Waiting Pool | 等候池 | server-side pool holding sessions that wait to be paired |
-| Session Identifier | 会话标识 | abbreviated SID |
-| Confirmation Tag | 确认标签 | not the same thing as an AEAD authentication tag |
-| Neighbour-Packet Linkage | 前后包关联 | each packet can be decrypted only against the packet immediately before and the packet immediately after it |
-| Data Packet | 数据包 | the only packet type; an empty payload is merely one of its states |
-| Framing | 帧界定 | the remedy for sticky and split packets |
+| Nonce | 接入随机数 | 阶段一携带；长度由参数 random_len 决定（冻结字段名） |
+| Access Salt | 接入盐 | 本地生成，不随帧传输 |
+| Waiting Pool | 等候池 | 服务器暂存待配对会话的池 |
+| Session Identifier | 会话标识 | 缩写 SID |
+| Confirmation Tag | 确认标签 | 与 AEAD 的认证标签是两回事 |
+| Neighbour-Packet Linkage | 前后包关联 | 每个包只与紧邻的上一包、下一包可互相解密 |
+| Data Packet | 数据包 | 唯一包类型；空载只是它的一种状态 |
+| Framing | 帧界定 | 解决粘包与拆包的对策 |
 
 ## 使用规则
 
