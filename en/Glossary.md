@@ -2,7 +2,7 @@
 
 > Purpose: every English document and every code comment in this project must use the English wording given here, so that terminology stays consistent throughout.
 > Status: this file is the **single authoritative source** of terminology and depends on no other document.
-> Entries: 123. Register new terms here before using them.
+> Entries: 121. Register new terms here before using them.
 
 | English | Chinese | Note |
 |---|---|---|
@@ -16,17 +16,13 @@
 | Dynamic Synchronization | 动态同步 |  |
 | End-to-End Encryption | 端到端加密 |  |
 | Symmetric Encryption | 对称加密 |  |
-| Supply Chain Attack | 供应链攻击 |  |
 | Hook | 钩子 | 挂载扩展模块的动作称 Extension Mounting |
 | Hash | 哈希 |  |
 | Constant-time Comparison | 恒定时间比较 |  |
-| Regression Testing | 回归测试 |  |
 | Session Key | 会话密钥 | 缩写 EK（Encryption Key），指当前生效的加密密钥 |
 | Session Salt | 会话盐 | 线上字段名 session_salt（冻结，不改） |
 | Ratchet | 棘轮 | 本协议专指逐包推进密钥的机制。与 Signal 双棘轮结构不同：本协议没有 DH 棘轮步 |
-| Race Condition | 竞态条件 |  |
 | Silent Drop | 静默丢弃 |  |
-| Static Taint Analysis | 静态污点分析 |  |
 | Zero Trust | 零信任 |  |
 | Token Hash | 令牌哈希 |  |
 | Traffic Analysis | 流量分析 |  |
@@ -129,6 +125,8 @@
 | Neighbour-Packet Linkage | 前后包关联 | 每个包只与紧邻的上一包、下一包可互相解密 |
 | Data Packet | 数据包 | 唯一包类型；空载只是它的一种状态 |
 | Framing | 帧界定 | 解决粘包与拆包的对策 |
+| Offer Packet | 提议包 | 阶段二由发起方提交，含其临时公钥与会话盐；对方据此协商后应答 |
+| Answer Packet | 应答包 | 阶段二由响应方返还，含其临时公钥；与提议包成对 |
 
 ## 使用规则
 
