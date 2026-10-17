@@ -86,9 +86,11 @@ This document is aimed at three kinds of readers:
 
 ### [About the Version Number]
 
-**1.0.0 is the first published version of this guide.** **The technical content of this document is itself the normative baseline** — protocol behaviour is governed by the main text, Appendix F (byte-by-byte on-wire specification) and Appendix H (state machine and timeout matrix).
+**1.0.0 is the first published version of this guide.** **The technical content of this document is itself the normative baseline** — for what actually binds, see Part 0, section 0.4.
 
 ## Table of Contents
+
+**Part 0**: Document Status, Terminology and Conformance
 
 **Volume 1**: Core Ideas and Design Principles
 
@@ -110,6 +112,59 @@ This document is aimed at three kinds of readers:
 
 **Appendix H**: State Machines, Timeouts, and Error Handling Matrix
 
+# Part 0: Document Status, Terminology and Conformance
+
+## 0.1 Document status
+
+| Item | Value |
+|---|---|
+| Document identifier | `ZT-DSP-1.0.0` |
+| Status | The only current revision. No earlier version has been published |
+| Nature | A normative document, but not all of it binds — see 0.4 |
+| Implementation identifier | `<language>_<version>`, for example `ZT-DSP_PY-1.0.0` |
+| License | The text is CC BY-SA 4.0; see `LICENSE` and `LICENSING.md` at the repository root |
+| Patents | The maintainers do not patent this protocol; see `en/DEFENSIVE-PUBLICATION.md` |
+
+## 0.2 Normative terminology
+
+This document uses the BCP 14 (RFC 2119, RFC 8174) keyword system, but **does not adopt the "all capitals only" convention**. The reason is that this document exists in Chinese and English in parallel; judging by capitalisation alone would give the two sides different force.
+
+Both sides are interpreted through one table, with equal force:
+
+| English | Chinese | Meaning |
+|---|---|---|
+| MUST | 必须 | Absolute requirement. Not meeting it is non-conformance |
+| MUST NOT | 不得、禁止 | Absolute prohibition |
+| SHOULD | 应、建议 | Recommended. May be omitted, but the reason must be defensible and the interoperability cost is yours |
+| SHOULD NOT | 不应 | Not recommended, as above |
+| MAY | 可以 | Genuinely optional. Omitting it is not non-conformance |
+
+**Interpretation rule: the lowercase `must`, `should` and `may` on the English side, and 必须 / 应 / 建议 / 可以 / 不得 / 禁止 on the Chinese side, are all interpreted by the table above.** That table is the only interpretation authority.
+
+A sentence that uses none of these terms is descriptive and imposes no requirement.
+
+## 0.3 Conformance
+
+| Level | Condition |
+|---|---|
+| **Conformant** | Passes every item in Appendix C.1 and matches the byte layout of Appendix F exactly |
+| **Partially conformant** | Implements a subset of Volume 4. The declaration must list every MUST it does not implement |
+| **Not conformant** | Fails Appendix C.1, or deviates from Appendix F at the byte level |
+
+A claim of conformance to ZT-DSP 1.0.0 must carry an implementation identifier. A claim without one does not stand.
+
+## 0.4 What actually binds
+
+| Scope | Nature | Note |
+|---|---|---|
+| Volume 4 | **Normative** | Not meeting it is non-conformance |
+| Appendices F, G, H | **Normative** | Byte layout, defence implementation, state machines and timeouts |
+| Volumes 1, 3, 5, 8 | Informative | Explain intent; impose no requirement |
+| Parameter values in Appendix B | Informative | All are free to change |
+| "Both sides must use the same parameters" in Appendix B | **Normative** | Values are free, but the two ends must agree |
+| Appendix C | Informative | The checklist used by 0.3; adds no requirement of its own |
+
+---
 # Volume 1: Core Ideas and Design Principles
 
 > **[Introduction to this volume]** This volume answers three questions: ① What is "zero trust"? ② What is "dynamic synchronization"? ③ Which four core principles does the protocol follow? This volume is the ideological foundation of everything that follows — if you understand this volume, the technical details of Volume 4 have an answer to "why".
@@ -292,15 +347,15 @@ Hash (Hash, Hash Function)
 
 > **Common Misconception**: Hash ≠ encryption. Encryption is reversible (with the key you can restore the plaintext); hashing is irreversible (you can only verify, not restore). Storing only the hash of a password, or using a hash as encryption, are mistakes beginners commonly make.
 
-# Book Four: Core Protocol Specification (the Minimum Set That Must Be Implemented)
+# Volume 4: Core Protocol Specification (the Minimum Set That Must Be Implemented)
 
-> **Reading Guide to This Book** This book is the **core protocol** of zt-dsp-py -- any implementation claiming compatibility with ZT-DSP must support the contents of this book (the extension modules in Book Three are all optional). This book answers: where identity comes from (4.1), how two parties establish an encrypted session (4.2), and how the server stays hidden (4.3).
+> **Reading Guide to This Volume** This volume is the **core protocol** of zt-dsp-py -- any implementation claiming compatibility with ZT-DSP must support the contents of this volume (the extension modules in Volume 3 are all optional). This volume answers: where identity comes from (4.1), how two parties establish an encrypted session (4.2), and how the server stays hidden (4.3).
 >
-> **Focus for Beginners** First understand the identity system in 4.1 (the difference between a token and a room number), then walk through the four-phase flow in 4.2. Every formula block has line-by-line comments; read them by matching "Input → Compute → Output". The descriptions in this book have been checked item by item against the implementation of the official client `zt_dsp_py`  (client version `ZT-DSP_PY-1.0.0`), and you can verify them by running the `ZT-DSP-client` implementation as its README describes.
+> **Focus for Beginners** First understand the identity system in 4.1 (the difference between a token and a room number), then walk through the four-phase flow in 4.2. Every formula block has line-by-line comments; read them by matching "Input → Compute → Output". The descriptions in this volume have been checked item by item against the implementation of the official client `zt_dsp_py`  (client version `ZT-DSP_PY-1.0.0`), and you can verify them by running the `ZT-DSP-client` implementation as its README describes.
 >
-> **Prerequisites** the hotel model of Book Three (this book is its technical implementation); the explanations of the four concepts "hash, encryption, key exchange, digital signature" in the Glossary.
+> **Prerequisites** the hotel model of Volume 3 (this volume is its technical implementation); the explanations of the four concepts "hash, encryption, key exchange, digital signature" in the Glossary.
 >
-> **Security Note** This book involves authentication and key material and is the book with the densest security annotations. Operations involving tokens or PSK are accompanied by **Privacy Risk**, **Protection Recommendation**, and **Compliance Note**; please do not skip them.
+> **Security Note** This volume involves authentication and key material and is the volume with the densest security annotations. Operations involving tokens or PSK are accompanied by **Privacy Risk**, **Protection Recommendation**, and **Compliance Note**; please do not skip them.
 
 ## 4.1 Identity and Credential System
 
@@ -863,13 +918,13 @@ If the server returned a different error code for each kind of error (e.g., "len
 
 > **Supplementary note**: This section discusses the **idea** of silent drop. The Responder-side **behavioral contract** of "strict silence" -- which failures must be silent (the full trigger table), the precise semantics of "send nothing, close nothing, suspend and swallow bytes" during silence, and why the initiator is asymmetric -- is in **Appendix F.2**; the complete matrix of failure paths at each phase is in **Appendix H.4**.
 
-# Volume Five: Security Boundaries and Threat Model
+# Volume 5: Security Boundaries and Threat Model
 
-> **[Reader's Guide to This Book]** This book answers a key question: **Under which attacks is ZT-DSP still secure? Under which attacks does it fail?** Understanding "security boundaries" matters more than understanding "security features" -- knowing what you cannot defend against is what prevents a false sense of security.
+> **[Reader's Guide to This Volume]** This volume answers a key question: **Under which attacks is ZT-DSP still secure? Under which attacks does it fail?** Understanding "security boundaries" matters more than understanding "security features" -- knowing what you cannot defend against is what prevents a false sense of security.
 >
 > **[Focus for Beginners]** Focus on 5.1 (untrusted server) and 5.4 (the defense matrix for layered attacks (nine-layer threat)). The "Security Guarantees and Boundaries" of 5.5 is the most important honest statement in the whole document; be sure to read it through.
 >
-> **[Prerequisites]** The four-phase handshake of Book Four. This book is the "stress test" of Book Four's security properties.
+> **[Prerequisites]** The four-phase handshake of Volume 4. This volume is the "stress test" of Volume 4's security properties.
 
 ## 5.1 Untrusted Server Scenario
 
@@ -882,7 +937,7 @@ If the server returned a different error code for each kind of error (e.g., "len
 ```plain
 End-to-End Encryption (E2EE)
 ├── Meaning: data is encrypted only at the sender and decrypted only at the receiver; every intermediate link (server, carrier) can see only ciphertext
-├── Principle: encryption keys are derived only at the two endpoints (Book Four, Phases 2/3); the server never holds any key material
+├── Principle: encryption keys are derived only at the two endpoints (Volume 4, Phases 2/3); the server never holds any key material
 └── Rationale: a server being breached, coerced, or acting maliciously from within are all real threats; E2EE makes the server "unable to see even if it wants to"
 ```
 
@@ -1529,7 +1584,7 @@ The implementation must build in the following hard upper bounds; **all upper-bo
 
 # Appendix H: State Machines, Timeouts, and Error Handling Matrix
 
-> **[Reading guide for this appendix]** Volume Four narrates the four phases along "the successful path"; this appendix completes **all branches**: the two roles' respective state machines (H.1/H.2), every "alarm clock" in the protocol (H.3), the behavior of each side when each kind of failure occurs (H.4), the protocol-layer exception hierarchy (H.5), and the key cleanup semantics after a failure (H.6).
+> **[Reading guide for this appendix]** Volume 4 narrates the four phases along "the successful path"; this appendix completes **all branches**: the two roles' respective state machines (H.1/H.2), every "alarm clock" in the protocol (H.3), the behavior of each side when each kind of failure occurs (H.4), the protocol-layer exception hierarchy (H.5), and the key cleanup semantics after a failure (H.6).
 >
 > **[Implementer's focus]** Interoperability requires not only "identical bytes on the successful path" but also "identical behavior on the failure path" — especially the trigger point of silent drop (F.2) and the ratchet handling of out-of-window packets (F.5 step 8). A single mistake here produces the hardest-to-diagnose problems, such as "implementation A and implementation B cannot connect in one direction / lose synchronization".
 
