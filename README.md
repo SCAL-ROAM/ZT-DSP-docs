@@ -49,6 +49,7 @@
 - [LICENSING.md](LICENSING.md) · [NOTICE](NOTICE) · [TRADEMARK.md](TRADEMARK.md)
 - [防御性公开声明](cn/DEFENSIVE-PUBLICATION.md) ／ [Defensive publication](en/DEFENSIVE-PUBLICATION.md)
 - [SECURITY.md](SECURITY.md)
+- 公开时刻与举证：[PUBLICATION-RECORD.md](PUBLICATION-RECORD.md)
 
 ### 我要参与开发
 
