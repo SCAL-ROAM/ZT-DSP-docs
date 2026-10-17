@@ -10,7 +10,7 @@
 | Half-open Connection | 半开连接 | 对端已消失而本端未察觉的连接形态 |
 | CLOSE_WAIT | CLOSE_WAIT 状态 | TCP 连接的一个具体状态 |
 | Side-Channel Attack | 侧信道攻击 |  |
-| Continuous Locking | 持续锁定 |  |
+| Sustained Lock | 持续锁定 |  |
 | Big-Endian | 大端字节序 | full form: Byte Order |
 | Out-of-Band Exchange | 带外交换 |  |
 | Dynamic Synchronization | 动态同步 |  |
